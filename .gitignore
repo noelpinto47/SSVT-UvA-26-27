@@ -1,0 +1,9 @@
+.stack-work/
+codegrade-exercises.cabal
+execution_instruction.md
+
+*.hi
+*.o
+
+*.yaml
+*.yaml.lock
