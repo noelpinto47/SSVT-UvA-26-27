@@ -1,0 +1,207 @@
+module Main where
+
+import SetOrd
+import Test.QuickCheck (Gen, Property, forAll, quickCheck, choose, frequency, vectorOf, sized, oneof)
+import Lecture3
+
+sub :: Form -> Set Form
+sub f@(Prop x) = Set [f]
+
+sub f@(Neg g) = unionSet (Set [f]) (sub g)
+
+sub f@(Cnj fs) = foldl unionSet (Set [f]) (map sub fs)
+
+sub f@(Dsj fs) = foldl unionSet (Set [f]) (map sub fs)
+
+sub f@(Impl f1 f2) =
+    unionSet
+        (unionSet (Set [f]) (sub f1))
+        (sub f2)
+
+sub f@(Equiv f1 f2) =
+    unionSet
+        (unionSet (Set [f]) (sub f1))
+        (sub f2)
+
+
+--------------------------------------------------------------------------------
+-- Counts the EXACT number of distinct sub-formulae
+--------------------------------------------------------------------------------
+
+nsub :: Form -> Int
+nsub f = fst (go (Set []) f)
+  where
+    go :: Set Form -> Form -> (Int, Set Form)
+    go seen f
+        | memberSet f seen = (0, seen)
+
+        | otherwise =
+            let seen' = unionSet seen (Set [f])
+            in case f of
+                Prop _ ->
+                    (1, seen')
+
+                Neg g ->
+                    let (n, seen'') = go seen' g
+                    in (1 + n, seen'')
+
+                Cnj fs ->
+                    let (n, seen'') = visitList seen' fs
+                    in (1 + n, seen'')
+
+                Dsj fs ->
+                    let (n, seen'') = visitList seen' fs
+                    in (1 + n, seen'')
+
+                Impl f1 f2 ->
+                    let (n1, seen1) = go seen' f1
+                        (n2, seen2) = go seen1 f2
+                    in (1 + n1 + n2, seen2)
+
+                Equiv f1 f2 ->
+                    let (n1, seen1) = go seen' f1
+                        (n2, seen2) = go seen1 f2
+                    in (1 + n1 + n2, seen2)
+
+    visitList :: Set Form -> [Form] -> (Int, Set Form)
+    visitList seen [] = (0, seen)
+
+    visitList seen (f:fs) =
+        let (n1, seen1) = go seen f
+            (n2, seen2) = visitList seen1 fs
+        in (n1 + n2, seen2)
+
+
+memberSet :: Eq a => a -> Set a -> Bool
+memberSet x (Set xs) =
+    x `elem` xs
+
+
+--------------------------------------------------------------------------------
+-- Generator for random propositional formulas
+--------------------------------------------------------------------------------
+
+formGen :: Gen Form
+formGen = sized gen
+  where
+    gen 0 =
+        oneof
+            [ Prop <$> choose (0, 5)
+            , return (Cnj [])
+            , return (Dsj [])
+            ]
+
+    gen n =
+        frequency
+            [ (3, Prop <$> choose (0, 5))
+            , (2, Neg <$> gen (n `div` 2))
+            , (2, do
+                    k <- choose (0, 3)
+                    fs <- vectorOf k (gen (n `div` 2))
+                    return (Cnj fs))
+            , (2, do
+                    k <- choose (0, 3)
+                    fs <- vectorOf k (gen (n `div` 2))
+                    return (Dsj fs))
+            , (2, Impl <$> gen (n `div` 2) <*> gen (n `div` 2))
+            , (2, Equiv <$> gen (n `div` 2) <*> gen (n `div` 2))
+            ]
+
+
+--------------------------------------------------------------------------------
+-- Independent definition:
+-- "g is a sub-formula of f"
+--------------------------------------------------------------------------------
+
+isSubFormula :: Form -> Form -> Bool
+isSubFormula g f
+    | g == f = True
+
+isSubFormula g (Neg f) =
+    isSubFormula g f
+
+isSubFormula g (Cnj fs) =
+    any (isSubFormula g) fs
+
+isSubFormula g (Dsj fs) =
+    any (isSubFormula g) fs
+
+isSubFormula g (Impl f1 f2) =
+    isSubFormula g f1 || isSubFormula g f2
+
+isSubFormula g (Equiv f1 f2) =
+    isSubFormula g f1 || isSubFormula g f2
+
+isSubFormula _ (Prop _) =
+    False
+
+
+--------------------------------------------------------------------------------
+-- Helper for SetOrd
+--------------------------------------------------------------------------------
+
+setSize :: Set a -> Int
+setSize (Set xs) =
+    length xs
+
+
+--------------------------------------------------------------------------------
+-- QuickCheck property 1
+-- Every formula is a sub-formula of itself.
+--------------------------------------------------------------------------------
+
+prop_subContainsItself :: Property
+prop_subContainsItself =
+    forAll formGen $ \f ->
+        memberSet f (sub f)
+
+
+--------------------------------------------------------------------------------
+-- QuickCheck property 2
+-- sub f should contain exactly the formulas that are structurally
+-- sub-formulae of f.
+--------------------------------------------------------------------------------
+
+prop_subCorrect :: Property
+prop_subCorrect =
+    forAll formGen $ \f ->
+        forAll formGen $ \g ->
+            memberSet g (sub f) == isSubFormula g f
+
+
+--------------------------------------------------------------------------------
+-- QuickCheck property 3 for nsub
+-- nsub must equal the number of elements in sub.
+--------------------------------------------------------------------------------
+
+prop_nsubMatchesSub :: Property
+prop_nsubMatchesSub =
+    forAll formGen $ \f ->
+        nsub f == setSize (sub f)
+
+
+--------------------------------------------------------------------------------
+-- QuickCheck property 4 for nsub
+-- There is always at least one sub-formula: the formula itself.
+--------------------------------------------------------------------------------
+
+prop_nsubPositive :: Property
+prop_nsubPositive =
+    forAll formGen $ \f ->
+        nsub f >= 1
+
+
+--------------------------------------------------------------------------------
+-- Main
+--------------------------------------------------------------------------------
+
+main :: IO ()
+main = do
+    putStrLn "=== Exercise 8: sub ==="
+    quickCheck prop_subContainsItself
+    quickCheck prop_subCorrect
+
+    putStrLn ""
+    putStrLn "=== Exercise 8: nsub ==="
+    quickCheck prop_nsubMatchesSub
+    quickCheck prop_nsubPositive
