@@ -4,7 +4,7 @@ Time spent: 4hrs
 
 sub
 
-Recursive structural definition: sub f always contains f itself, plus
+Recursive structural definition: sub formulae always contains f (formula) itself, plus
 (unioned in) sub of every immediate child formula. Built on Set from
 SetOrd, using unionSet to combine results. Cnj/Dsj use `foldl unionSet`
 over all children, so it correctly handles n-ary lists - the exercise
