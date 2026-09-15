@@ -1,0 +1,58 @@
+Design Report - Exercise 8: Sub-formulae (sub, nsub)
+
+Time spent: 4hrs
+
+sub
+
+Recursive structural definition: sub f always contains f itself, plus
+(unioned in) sub of every immediate child formula. Built on Set from
+SetOrd, using unionSet to combine results. Cnj/Dsj use `foldl unionSet`
+over all children, so it correctly handles n-ary lists - the exercise
+handout's example only unions two branches at a time, which would miss
+subformulae for Cnj/Dsj lists longer than 2. Fixed here with foldl.
+
+Correctness (Q1)
+
+Can't fully prove correctness with QuickCheck, only build evidence against
+two independent checks:
+
+1. prop_subContainsItself - sub f should always contain f. Structural
+   invariant, easy to check directly.
+
+2. prop_subCorrect - cross-checks `sub` against `isSubFormula`, a second,
+   independent definition of "is a subformula of" written straight from the
+   informal definition, not reusing any of sub's own logic. If the
+   set-building implementation and the direct structural check agree on
+   every generated formula, that's strong evidence sub is correct - this is
+   the "test against an independent spec" approach from Haskell Road to
+   Logic 7.7, since it's the strongest testing gets without an actual proof.
+
+nsub
+
+A naive recursive definition (1 + count of children) would overcount
+whenever a subformula repeats structurally under different branches. nsub
+instead does a stateful traversal (`go`) carrying a `Set Form` of formulas
+already counted, and only counts a node if it hasn't been seen yet. This
+mirrors exactly how `sub`/unionSet avoid duplicates, so nsub f should always
+line up with setSize (sub f).
+
+Why inSet/insertSet instead of a custom memberSet: sets built via
+unionSet/insertSet stay sorted (both use `compare` on insert), and `inSet`
+already relies on that sortedness for its `takeWhile (<= x)` early exit -
+matches Form's derived Ord instance from Lecture3, so it's a correct,
+cheaper drop-in for a plain `elem` scan.
+
+Testing
+
+prop_nsubMatchesSub - nsub f must equal the size of sub f (setSize, since
+SetOrd doesn't expose a size function of its own).
+
+prop_nsubPositive - nsub f >= 1, since a formula is always its own
+subformula.
+
+formGen
+
+Custom sized generator over Form instead of deriving Arbitrary, so I can
+control branching probability (frequency) and cap Cnj/Dsj arity
+(choose (0,3)) - keeps generated formulas small enough that QuickCheck
+actually terminates quickly.

@@ -1,0 +1,45 @@
+Design Report - Exercise 3: Testing Properties Strength
+
+Time spent: 2hrs
+
+Approach
+
+stronger/weaker check "for all x in the domain, p x implies q x" over a
+finite domain, so strength here is domain-relative, not proven for all Int.
+
+Domain: [1..10], as specified.
+
+Implication operator
+Used (-->) from Lecture3 instead of writing my own `implies`. Lecture3
+defines the exact same thing (not p || q), and I'm already importing it for
+Exercise 8, so this adds no extra dependency.
+
+Properties
+prop1 x = even x && x > 3
+prop2 x = even x || x > 3
+prop3 x = (even x && x > 3) || even x
+prop4 x = even x
+
+Strength reasoning
+
+1. prop1 -> prop4: (even x && x > 3) implies even x trivially (dropping a
+   conjunct). prop1 is stronger.
+
+2. prop4 -> prop2: even x implies (even x || x > 3) trivially (adding a
+   disjunct). prop4 is stronger, prop2 is weaker.
+
+3/4. prop3 and prop4 are equivalent: (A && B) || A reduces to A by
+   absorption, so prop3 = (even x && x>3) || even x is just even x on every
+   input. Checked both directions (stronger domain prop3 prop4 and
+   stronger domain prop4 prop3) to confirm.
+
+Ordering (strongest to weakest):
+prop1 > prop4 = prop3 > prop2
+
+Testing
+
+Wrapped each stronger/weaker check as a `Bool` QuickCheck property
+(prop_test1..prop_test3b). The domain is fixed and finite, so QuickCheck
+isn't generating new inputs here - it's just confirming the Bool holds. The
+actual exhaustive check already happens inside `stronger`/`weaker` over the
+domain list.

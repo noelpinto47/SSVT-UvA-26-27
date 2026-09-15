@@ -8,6 +8,7 @@ execution_instruction.md
 *
 *.yaml
 *.yaml.lock
+*.pdf
 
 !*.hs
 !*.txt

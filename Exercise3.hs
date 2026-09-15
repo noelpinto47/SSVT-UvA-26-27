@@ -1,14 +1,10 @@
 module Main where
 
 import Test.QuickCheck
+import Lecture3 ((-->), exercise)
 
-implies :: Bool -> Bool -> Bool
-implies p q = not p || q
-
-stronger :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
-stronger xs p q = all (\x -> implies (p x) (q x)) xs
-
-weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
+stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
+stronger xs p q = all (\x -> p x --> q x) xs
 weaker xs p q = stronger xs q p
 
 -- Domain specified by the exercise
@@ -75,6 +71,7 @@ prop_test3b = test3b
 
 main :: IO ()
 main = do
+    putStrLn (exercise 3 "Testing Properties Strength")
 
     putStrLn ""
     putStrLn "Domain:"

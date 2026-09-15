@@ -33,10 +33,10 @@ nsub f = fst (go (Set []) f)
   where
     go :: Set Form -> Form -> (Int, Set Form)
     go seen f
-        | memberSet f seen = (0, seen)
+        | inSet f seen = (0, seen)
 
         | otherwise =
-            let seen' = unionSet seen (Set [f])
+            let seen' = insertSet f seen
             in case f of
                 Prop _ ->
                     (1, seen')
@@ -70,11 +70,6 @@ nsub f = fst (go (Set []) f)
         let (n1, seen1) = go seen f
             (n2, seen2) = visitList seen1 fs
         in (n1 + n2, seen2)
-
-
-memberSet :: Eq a => a -> Set a -> Bool
-memberSet x (Set xs) =
-    x `elem` xs
 
 
 --------------------------------------------------------------------------------
@@ -137,7 +132,7 @@ isSubFormula _ (Prop _) =
 
 
 --------------------------------------------------------------------------------
--- Helper for SetOrd
+-- Helper (SetOrd has no built-in size function)
 --------------------------------------------------------------------------------
 
 setSize :: Set a -> Int
@@ -153,7 +148,7 @@ setSize (Set xs) =
 prop_subContainsItself :: Property
 prop_subContainsItself =
     forAll formGen $ \f ->
-        memberSet f (sub f)
+        inSet f (sub f)
 
 
 --------------------------------------------------------------------------------
@@ -166,7 +161,7 @@ prop_subCorrect :: Property
 prop_subCorrect =
     forAll formGen $ \f ->
         forAll formGen $ \g ->
-            memberSet g (sub f) == isSubFormula g f
+            inSet g (sub f) == isSubFormula g f
 
 
 --------------------------------------------------------------------------------
@@ -197,11 +192,13 @@ prop_nsubPositive =
 
 main :: IO ()
 main = do
-    putStrLn "=== Exercise 8: sub ==="
+    putStrLn (exercise 8 "Sub-formulae (sub, nsub)")
+ 
+    putStrLn "-- sub --"
     quickCheck prop_subContainsItself
     quickCheck prop_subCorrect
-
+ 
     putStrLn ""
-    putStrLn "=== Exercise 8: nsub ==="
+    putStrLn "-- nsub --"
     quickCheck prop_nsubMatchesSub
     quickCheck prop_nsubPositive
