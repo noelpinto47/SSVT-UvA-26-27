@@ -1,4 +1,4 @@
-module Main where
+module Exercise8 where
 
 import SetOrd
 import Test.QuickCheck (Gen, Property, forAll, quickCheck, choose, frequency, vectorOf, sized, oneof)

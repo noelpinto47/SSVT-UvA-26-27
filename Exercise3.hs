@@ -1,4 +1,4 @@
-module Main where
+module Exercise3 where
 
 import Test.QuickCheck
 import Lecture3 ((-->), exercise)
