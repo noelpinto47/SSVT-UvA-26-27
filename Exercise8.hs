@@ -183,21 +183,3 @@ prop_nsubPositive :: Property
 prop_nsubPositive =
     forAll formGen $ \f ->
         nsub f >= 1
-
-
---------------------------------------------------------------------------------
--- Main
---------------------------------------------------------------------------------
-
-main :: IO ()
-main = do
-    putStrLn (exercise 8 "Sub-formulae (sub, nsub)")
- 
-    putStrLn "-- sub --"
-    quickCheck prop_subContainsItself
-    quickCheck prop_subCorrect
- 
-    putStrLn ""
-    putStrLn "-- nsub --"
-    quickCheck prop_nsubMatchesSub
-    quickCheck prop_nsubPositive
