@@ -13,7 +13,7 @@ factorial 0 = 1
 factorial n = n * factorial (n-1)
 
 -- generator for small natural numbers
--- we keep the range small to avoid large numbers
+-- keep the range small to avoid large numbers
 generateNumber :: Gen Integer
 generateNumber = choose (0, 20)
 
@@ -24,7 +24,7 @@ prop_factorialPositive = forAll generateNumber $ \n -> factorial n > 0
 
 -- property 2: factorial satisfies the recursive identity
 -- test this by checking that factorial (n+1) == (n+1) * factorial n
--- we use n+1 to avoid the base case of 0
+-- use n+1 to avoid the base case of 0
 prop_factorialRecursiveIdentity :: Property
 prop_factorialRecursiveIdentity = forAll generateNumber $ \n -> factorial (n+1) == (n+1) * factorial n
 
