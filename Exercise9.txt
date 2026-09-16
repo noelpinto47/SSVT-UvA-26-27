@@ -1,0 +1,11 @@
+
+I made the oneTuple function extra to reduce the complexity of the counterexaples function in one line.
+The general idea is the following: We get tuples starting from 1. In each iteration, we get the second element of the tuple with `snd` and check if that element is not prime. As we want the counterexamples, only if it is not prime, we want to include it in our return list.
+
+genRandomCounterTuple gives back a generator which returns randomly an element from the list
+In the prop_SndIsNotPrime I check if from the tuple I got back from the generator, the second element is in fact not a prime.
+At test1, I wanted to cap the quickCheck, since quickCheck would run 100 times and then would also choose 100 times randomly from the 5 elements list.
+
+To really show the difference between doing this with a generator and normal, I also implemented the prop_SndIsNotPrimeWithoutGen which uses the normal all function.
+
+At prop_FstIsPrime I check if all the numbers in the left part of the tuple are prime numbers.

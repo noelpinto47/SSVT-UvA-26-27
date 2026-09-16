@@ -1,0 +1,16 @@
+
+# Questions
+
+1) Is the cardinality property of the powerset hard to test? If you find that it is, can you give a reason why?
+
+The time complexity powerset is O(2^n). This means that the computation time significantly rises with more elements. Furthermore, since it is recursive, depending on the stack size, there is also a tendency for a stack overflow. 
+
+2) Give your thoughts on the following issue: When you perform these tests, what are you testing actually? Are you checking a mathematical fact? Or are you testing whether powerset satisfies a part of its specification? Or are you testing something else still?
+
+With prop_TwoGreater I test that if from a list one additional element gets added, then the amount of subsets that powerset returns is double the amount before. 
+
+With prop_LenPowerTwo I do not test the correct content of the individual subsets itself, but rather the property that the powerset function produces the correct number of subsets.
+
+In a way with these are all properties which test one part of its specification, namely that the length properties hold. I do not test the content of the returned subsets itself.
+
+Time indication: 2-3 hours
