@@ -22,7 +22,9 @@ prop_permReflexive = forAll genNoDups $ \list1 -> isPermutation list1 list1
 -- property 2: permutation is symmetric
 -- if list1 is a permutation of list2, then list2 is a permutation of list1
 prop_permSymmetric :: Property
-prop_permSymmetric = forAll genNoDups $ \list1 -> forAll (shuffle list1) $ \list2 -> isPermutation list1 list2 == isPermutation list2 list1
+prop_permSymmetric = forAll genNoDups $ \list1 ->
+    forAll (shuffle list1) $ \list2 ->
+        isPermutation list1 list2 == isPermutation list2 list1
 
 -- property 3: if two lists are permutations of each other, they must have the same length
 prop_permSameLength :: Property
