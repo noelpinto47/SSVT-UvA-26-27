@@ -1,0 +1,96 @@
+Design report
+
+    Definitions:
+    A permutation is a rearrangement of the elements of a list - so all elements of the input list are present in the permutation.
+    A derangement is a permutation for which it is true that for each index of the two lists the elements at that index are not the same.
+    Example [1,2,3] and [3,2,1] are derangements but [1,2,3] and [1,3,2] are not.
+
+    Since the two lists xs and ys isDerangement has as input can be any lists we have to first check for 
+        1)Are the two lists permutations
+        2)Are the two lists derangements
+
+    To check 1 it suffices to check if any one of the lists xs or ys are in the list of permutation(given by permutations function) of the other. 
+    Here checking the permutations of any one list is enough because if ys is a permutation of xs then it implies that
+    xs would also be a permutation of ys and vice verse.
+
+    To check 2 we have to compare the elements at every corresponding index of xs and ys and ensure they are different for each index in the lists.
+    zipWith does this comparision when used with /= and returns a list ex. [T, T, T] when 
+    this is the case. This used with all id ensures that the function returns true if and only if all elements are T otherwise it returns false.
+
+    Duplicates
+    zipWith also deals correctly with the case that there are duplicates in the list ex [1,2,1] and [2,1,1]
+    by focussing on indexes and not the values.
+
+    Edge cases(empty list etc)
+    For empty lists [] [] as expected they satisfy both conditions vacously.
+
+
+Test report
+
+    So to test the permutation aspect we need to test that all elements of the initial list are also in the permutation
+    To test that a list ys is a derangement of a list xs we have to test that 
+        -ys is a permutation of xs
+        -For every index/position in list for xs and ys, the element at that index is different between xs and ys.
+
+    Chosen integer lists    Expected values
+
+    [] and []               → True(vacously)
+    [1,2,3] and [2,3,1]     → True(permutation + derangement)
+    [1,2,3] and [1,3,2]     → False(permutation but not derangement)
+    [1,2,3] and [1,2]       → False(not a permutation)
+    [1,2,1] and [2,1,1]     → False(element at index 2 is same(1 in both xs and ys))
+    [1,2,3] and [4,5,6]     → False(not a permutation)
+    [1,1,2,2] and [2,2,1,1] → True(Derangement despite duplicates)
+
+    All results were equal to the expected values
+
+
+    Choice of properties
+    1) property1LengthIsSame
+    This checks if the lengths of the inputs is the same which is a precondition for lists 
+    to be permutations of each other. It is inherently weaker than property 2.
+
+    2) property2SortsToSameList
+    This property essentially checks for permutations singlehandedly as all valid permutations
+    sort to the same list.
+
+    3) property3AllIndicesDifferentValues
+    This property check that the elements at each index of xs and ys are different
+
+    When put together property 2(2 implies 1) and property 3 cover the conditions needed to test for derangements
+
+    Ordered list of properties
+    1) property1LengthIsSame is weaker than property2SortsToSameList
+    Explanation
+    property2SortsToSameList implies property1LengthIsSame because if the lists sort to the same list then it must mean that the lengths of the lists were the same.
+
+    2)property1LengthIsSame is not comparable to property3AllIndicesDifferentValues 
+    Explanation
+    property1LengthIsSame does not imply property3AllIndicesDifferentValues because because lists of equal length can have same elements at each corresponding indexes example duplicate lists like [1,2,3] and [1,2,3]
+    property3AllIndicesDifferentValues does not imply property1LengthIsSame because lists can differ at each position and also be of unequal lengths like [1,2,3] [4,5]
+    so niether propertyt is weaker/stronger than the other
+
+    3)property2SortsToSameList is not comparable to property3AllIndicesDifferentValues
+    Explanation
+    property2SortsToSameList does not imply property3AllIndicesDifferentValues because counterexamples like [1,2,3] and [1,3,2] will satisfy property2SortsToSameList but not property3AllIndicesDifferentValues
+    property3AllIndicesDifferentValues does not imply property2SortsToSameList because counterexamples like [1,2,3] [4,5,6] satisfy property3AllIndicesDifferentValues but not property2SortsToSameList
+
+
+    property2SortsToSameList implies property1LengthIsSame was tested with Haskell - result True as expected
+    property3AllIndicesDifferentValues implies property2SortsToSameList was tested with Haskell - result False as expected
+    property3AllIndicesDifferentValues implies property1LengthIsSame was tested with Haskell - result False as expected
+
+    TODO Stuff about properties implying each other and quickcheck not finding counterexamples.
+    
+
+Conclusion
+
+    The implementation works as expected for all the tested scenarios. 
+    The simple scenarios like empty lists, lists of unequal length and permutation but not deragements work as expected
+    The implementation identifies which lists are valid derangements.
+    The more complex scenarios like lists with duplicate elements which are not deragements and lists wth duplicates which are still valid derangements also works as expected.
+
+
+Indication of time spent ~ 5 hours
+
+
