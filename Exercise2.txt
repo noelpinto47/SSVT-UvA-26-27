@@ -1,16 +1,94 @@
+1. Induction Proof
 
-# Questions
+Prove by induction that if A is a finite set with ∣A∣ = n then ∣P(A)∣ = 2^n.
 
-1) Is the cardinality property of the powerset hard to test? If you find that it is, can you give a reason why?
+Base case (n = 0):
+
+|A| = 0 then ∣P(A)∣ = 2^0 = 1.
+The empty set has no members. And the powerset of the empty set is the empty set itself. So the base case holds.
+
+Induction Hypothosis: 
+A is a finite set with ∣A∣ = n then ∣P(A)∣ = 2^n
+
+Induction Step:
+We introduce an additional set A' which has one element more than the original set A. So |A'| = n + 1 and |A| = n. We call this element x. x is now part of A' but not A. It follows that x ∉ A and A' = A ∪ {x}. We now calculate the subsets B' of A' and conclude that there are two kinds of subsets B' of A'.
+1) There are the subsets which contain the element {x}, so x ∈ B'.
+2) And then there are the subsets which do not contain the element {x}, so x ∉ B'.
+
+Consequently, when we expand A to A' with one element x, then each subset B of A gets one additional subset with the x in it.
+Therefore, A' has twice as many subsets as A and so ∣P(A)∣ = 2 * 2^n = 2^(n+1).
+
+2. Design report
+
+2.1 Implementation powersort
+
+First I implemented the powerset in a different way where the order was not as stated in the assignment sheet. The idea was the following:
+
+In each recursive function call, I first compute all the subsets of the previouse function call. It then keeps all those subsets and additionally creates a second copy of them with the current element added to each subset.
+
+However, that created the result 
+[[],[3],[2],[2,3],[1],[1,3],[1,2],[1,2,3]]
+instead of the desired 
+[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+So I went with a different approach where with "init" I get all the elements from the list but the last one and assign it to ps. The last element is extracted via "last xs" to x. I do that recursivly until the empty set itself. Starting from there, the subsets are build. The x element on the deepest recursive call is the empty subset itself. The second most deepest recursive call is 1, then 2 and then 3. On each call, I append no the x variable where now the order is reverse, resulting to the correct order: 
+[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+2.2 Properties
+
+I made six properties which test with the small number generator the powerset function. Because of the time complexity of the powerset, I kept the upper limit to 10. As for the lower limit, I included zero, because [1..0] produces an empty list. And an powerset of an empty list should only contain the empty list itself as subset.
+
+2.2.1 prop_TwoGreater and prop_General
+The prop_TwoGreater property checks if the induction hypothosis holds that the amount of subsets doubles with n = n + 1. One remark on that is the length of the list of the first powerset will always be 3 and the length of the second powerset will always be 3-1=2. This is why I implemented an additional property prop_General which which uses as length again the genSmallNat but as a starting base number for the list the input argument of the quickCheck.
+
+2.2.2 prop_LenPowerTwo
+This property check if the amount of generated subsets itself is equal to the hypothosis. p+1 because if n = 0 and p = 4, then the list contains five elements:
+[n .. n + p]  -- [0, 1, 2, 3, 4]
+
+2.2.3 prop_containsEmpty and prop_containsInput
+These properties are the only ones which check part of the content of the subsets. For each generated powerset, it is guaranteed to contain the empty set and the whole set.
+
+2.2.4 prop_LenPowerTwoLimit
+This property works includes a precondition. However we see at the test report that this is not a good idea as too many tests get discarded.
+
+
+3. Test report
+
+ghci> powerset [1..3]
+[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+ghci> [1..0]
+[]
+
+ghci> main
+prop_TwoGreater:
++++ OK, passed 100 tests.
+prop_General:
++++ OK, passed 100 tests.
+prop_LenPowerTwo:
++++ OK, passed 100 tests.
+prop_Distinct:
++++ OK, passed 100 tests.
+prop_containsEmpty:
++++ OK, passed 100 tests.
+prop_containsInput:
++++ OK, passed 100 tests.
+
+When testing with the precondition in the property itself, the quickCheck gave up, because the precondition was too narrow. QuickCheck produces Integer numbers within a distributed evenly, so a lot of testcases where the numbers do not fall within the range of 0 and 8 gets discarded.
+
+ghci> quickCheck prop_LenPowerTwoLimit
+*** Gave up! Passed only 99 tests; 1000 discarded tests.
+
+4. Questions
+
+4.1) Is the cardinality property of the powerset hard to test? If you find that it is, can you give a reason why?
 
 The time complexity powerset is O(2^n). This means that the computation time significantly rises with more elements. Furthermore, since it is recursive, depending on the stack size, there is also a tendency for a stack overflow. 
 
-2) Give your thoughts on the following issue: When you perform these tests, what are you testing actually? Are you checking a mathematical fact? Or are you testing whether powerset satisfies a part of its specification? Or are you testing something else still?
+4.2) Give your thoughts on the following issue: When you perform these tests, what are you testing actually? Are you checking a mathematical fact? Or are you testing whether powerset satisfies a part of its specification? Or are you testing something else still?
 
-With prop_TwoGreater I test that if from a list one additional element gets added, then the amount of subsets that powerset returns is double the amount before. 
+The five properties do not test the content of the individual subsets per se. I can only approach this by checking if the empty subset and the input subset itself are in the list of returned subsets.
+With the other properties, I are testing the length specification. In a way, this is only a part of its specification, because I do not inlude the checking of a content. 
 
-With prop_LenPowerTwo I do not test the correct content of the individual subsets itself, but rather the property that the powerset function produces the correct number of subsets.
 
-In a way with these are all properties which test one part of its specification, namely that the length properties hold. I do not test the content of the returned subsets itself.
-
-Time indication: 2-3 hours
+Time indication: 6 hours
