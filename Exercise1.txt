@@ -1,0 +1,67 @@
+Exercise 1 - Design and Test Report
+Time Spent: 60 min
+
+1. DESIGN CHOICES
+
+Implementation
+factorial :: Integer -> Integer is implemented recursively, as required.
+The base case is factorial 0 = 1 (the empty product), and the recursive
+case is factorial n = n * factorial (n - 1). Integer is used instead of
+Int so results do not overflow.
+
+Negative input
+Factorial is only defined for n >= 0. The function has no guard for
+negative input, so factorial (-1) recurses forever. The precondition
+n >= 0 is therefore assumed, and all generators only produce values in
+that range.
+
+Generator
+The generator generateNumber = choose (0, 20) is used with forAll. The
+range is kept small because factorial grows very fast, so larger inputs
+would make tests slow and produce huge numbers without adding new kinds
+of cases. The range includes 0, so the base case is always exercised.
+
+2. PROPERTIES TESTED
+
+Property 1: prop_factorialPositive
+Checks that factorial n > 0 for all n in [0, 20].
+Catches: implementations returning 0 or a negative value, for example a
+wrong base case such as factorial 0 = 0, which would make every result 0.
+
+Property 2: prop_factorialRecursiveIdentity
+Checks that factorial (n + 1) == (n + 1) * factorial n for n in [0, 20].
+Using n + 1 keeps the base case as the starting point of the check.
+Catches: errors in the recursive step, for example a wrong multiplier or
+an off-by-one in the argument.
+
+Property 3: prop_factorialIncreasing
+Checks that factorial n < factorial (n + 1) for n in [1, 19].
+The range starts at 1 because factorial 0 == factorial 1 == 1, so the
+strict inequality does not hold at n = 0. Factorial is strictly
+increasing only from n = 1 onward. The upper bound of 19 keeps n + 1
+within the tested range of 0 to 20.
+Catches: implementations that stop growing or return a constant for
+n >= 1.
+
+3. RESULTS
+
+➜  SSVT-UvA-26-27 git:(Lab1) ✗ ./execution/TestExercise1
+
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+
+4. LIMITATIONS
+
+- Property 2 restates the recursive definition, so it would pass for any
+  implementation with the same structure, including one with a wrong base
+  case. It is only meaningful together with property 1 and an
+  implementation-independent check.
+- No property compares against an independent reference such as
+  product [1..n], so a subtle error consistent across the properties
+  could go undetected.
+- Values above 20 and negative values are never tested. Negative input
+  does not terminate, as described above.
+- QuickCheck runs a random sample of 100 cases from a range of only 21
+  values, so coverage of the range is likely but not guaranteed on any
+  single run.

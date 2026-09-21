@@ -29,9 +29,9 @@ prop_factorialRecursiveIdentity :: Property
 prop_factorialRecursiveIdentity = forAll generateNumber $ \n -> factorial (n+1) == (n+1) * factorial n
 
 -- property 3: factorial is strictly increasing
--- factorial n < factorial (n + 1) for all n >= 0
+-- factorial n < factorial (n + 1) for all n > 0
 prop_factorialIncreasing :: Property
-prop_factorialIncreasing = forAll (choose (0, 19)) $ \n -> factorial n < factorial (n + 1)
+prop_factorialIncreasing = forAll (choose (1, 19)) $ \n -> factorial n < factorial (n + 1)
 
 -- main function to run the property tests
 main :: IO ()
