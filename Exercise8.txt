@@ -129,7 +129,7 @@ ghci> main
 +++ OK, passed 500 tests.
 ghci>
 
-6. ANSWER
+6. CONCLUSION
 
 Both sub and nsub hold up under all five properties, each passing 500/500 generated Form cases with no counterexamples found:
 
