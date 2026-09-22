@@ -1,11 +1,79 @@
+1. Design Report
+
+1.1 Implementation counterexamples
 
 I made the oneTuple function extra to reduce the complexity of the counterexaples function in one line.
-The general idea is the following: We get tuples starting from 1. In each iteration, we get the second element of the tuple with `snd` and check if that element is not prime. As we want the counterexamples, only if it is not prime, we want to include it in our return list.
+The general idea is the following: We get tuples starting from 1 with the k variable. The k variable increase by one in each iteration, because it gets the value from the infinite list [1..].
+In each iteration, we get the second element of the tuple with snd and check if that element is not prime. As we want the counterexamples, only if it is not prime, we want to include it in our return list.
 
-genRandomCounterTuple gives back a generator which returns randomly an element from the list
-In the prop_SndIsNotPrime I check if from the tuple I got back from the generator, the second element is in fact not a prime.
-At test1, I wanted to cap the quickCheck, since quickCheck would run 100 times and then would also choose 100 times randomly from the 5 elements list.
+1.2 Properties
 
-To really show the difference between doing this with a generator and normal, I also implemented the prop_SndIsNotPrimeWithoutGen which uses the normal all function.
+1.2.1 genRandomCounterTuple and prop_SndIsNotPrime
+genRandomCounterTuple gives back a generator which returns randomly an element from the list of the 12 counterexamples. This limit is hardcoded, because of observation results, as later shown in the test report.
 
-At prop_FstIsPrime I check if all the numbers in the left part of the tuple are prime numbers.
+In the prop_SndIsNotPrime I check if from the tuple I got back from the generator, the second element is in fact not a prime. For demonstration purposes, I still used a generator here. If we would run quickCheck prop_SndIsNotPrime, it runs 100 tests and for each test, it will randomly select one element from the 12 counterexamples.
+
+1.2.2 prop_SndIsNotPrimeWithoutGen
+
+This is not good, because with the finite small number 12, we can also run test all the counterexamples. That is why I added an Int as input parameter and created an additional property with the same test purpose.
+This way, all the 12 counterexamples are tested.
+
+1.2.3 prop_FstIsPrimeWithoutGen
+
+At prop_FstIsPrime I check if all the numbers in the left part of the tuple are prime numbers. Again without generator to test all 12 counterexamples.
+
+1.2.4 prop_FstOrderPrimeWithoutGen
+prop_FstOrderPrimeWithoutGen checks if the primes from the tuples are the first prime numbers an no one is skipped.
+
+1.2.5 prop_SecondCalcFirstWithoutGen
+This property checks that the second value of the tuple is in fact calculated from the product of the prime numbers of the list + 1.
+
+
+2. Test Report:
+
+ghci> quickCheck prop_SndIsNotPrime
++++ OK, passed 100 tests.
+(0.05 secs, 4,510,656 bytes)
+
+ghci> prop_FstOrderPrimeWithoutGen 12
+True
+(10.35 secs, 3,633,568,344 bytes)
+
+I kept the number of 12 counterexamples, because for the 13 counterexamples, I had to interrupt my PC due to time duration.
+
+ghci> take 12 counterexamples
+[([2,3,5,7,11,13],30031),([2,3,5,7,11,13,17],510511),([2,3,5,7,11,13,17,19],9699691),([2,3,5,7,11,13,17,19,23],223092871),([2,3,5,7,11,13,17,19,23,29],6469693231),([2,3,5,7,11,13,17,19,23,29,31,37],7420738134811),([2,3,5,7,11,13,17,19,23,29,31,37,41],304250263527211),([2,3,5,7,11,13,17,19,23,29,31,37,41,43],13082761331670031),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47],614889782588491411),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53],32589158477190044731),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59],1922760350154212639071),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61],117288381359406970983271)]
+(0.04 secs, 489,400 bytes)
+
+
+ghci> take 13 counterexamples
+[([2,3,5,7,11,13],30031),([2,3,5,7,11,13,17],510511),([2,3,5,7,11,13,17,19],9699691),([2,3,5,7,11,13,17,19,23],223092871),([2,3,5,7,11,13,17,19,23,29],6469693231),([2,3,5,7,11,13,17,19,23,29,31,37],7420738134811),([2,3,5,7,11,13,17,19,23,29,31,37,41],304250263527211),([2,3,5,7,11,13,17,19,23,29,31,37,41,43],13082761331670031),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47],614889782588491411),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53],32589158477190044731),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59],1922760350154212639071),([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61],117288381359406970983271)Interrupted.
+
+
+Results of main:
+
+ghci> main
+prop_SndIsNotPrime:
++++ OK, passed 5 tests.
+prop_SndIsNotPrimeWithoutGen:
+True
+prop_FstIsPrimeWithoutGen:
+True
+prop_FstOrderPrimeWithoutGen:
+True
+prop_SecondCalcFirstWithoutGen:
+True
+(10.43 secs, 3,634,678,256 bytes)
+
+Another interesting observation was the caching of the data. When I opened a new ghci shell and calculated the first 12 counterexamples, then it would take around 10 seconds. If I would then execute the statement immediately again, it has apparently a cache hit and displays the result immediately.
+
+ghci> :set +s
+ghci> prop_FstOrderPrimeWithoutGen 12
+True
+(10.05 secs, 3,633,570,776 bytes)
+ghci> prop_FstOrderPrimeWithoutGen 12
+True
+(0.00 secs, 69,816 bytes)
+
+
+Time spent: 5-6 hours
