@@ -1,0 +1,36 @@
+Design Report:
+    
+    There are 5 boys out of which 3 are telling the truth and two are lying. There is only one thief.
+    Their statement need to be converted from natural language to predicates in order to compute with Haskell who is telling the truth, who is lying and who is the thief.
+
+Approach:
+    The idea is to compute each boys testimony while considering each boy one by one as the suspect.
+    Once the testimonies are computed for each boy as the suspect, we compute the accusers for each boy usiong the accusers :: Boy -> [Boy] function and see for which boy as suspect 
+    we get 3 accusers for the suspect. Since we know 3 boys are always telling the truth it means that if a suspect gets 3 accusers then that means
+    than only he can be the thief. 
+    Use the accuses :: Boy -> Boy -> Bool function to encode each boys' testimony under a variable suspect.
+    For example Matthew's testimony "Matthew: Carl didn't do it, and neither did I" can be encoded as
+    accuses Matthew suspect =
+    suspect /= Carl && suspect /= Matthew
+    ie Matthew accusses the suspect if the suspect is not Carl or Matthew, otherwise he does not accuse the suspect.
+
+    Similarly, 
+    Peter's testimony is "It was Matthew or it was Jack."
+    accuses Peter suspect =
+        suspect == Matthew || suspect == Jack
+    And so on we can gather for each suspect who accuses them and who does not.
+
+    In the accusers function we use the accuses function to check under the current suspect who accuses them and returning the list of accusers for that suspect.
+
+    Once we find for which suspect the number of accusers is equal to 3 we know who the three honest boys and who the two dishonest boys were.
+    And we know who was actually the thief.
+
+Result:
+    Guilty:
+    Jack
+    Honest:
+    [Matthew,Peter,Carl]
+
+Time spent: 
+    3 hours
+    
