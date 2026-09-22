@@ -1,4 +1,4 @@
-Design Report - Exercise 8: Sub-formulae (sub, nsub)
+Design and Test Report - Exercise 8: Sub-formulae (sub, nsub)
 
 Time Spent: 12hrs
 
