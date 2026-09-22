@@ -55,20 +55,64 @@ test3b         = True   (prop4 -> prop3 holds)
 
 QuickCheck: prop_test1, prop_test2, prop_test3a, prop_test3b each
 passed 1 test, as expected for a True Bool. prop_test1_reverse and
-prop_test2_reverse were each "Falsified (after 1 test)" — this is the
+prop_test2_reverse were each "Falsified (after 1 test)", this is the
 expected and correct outcome, since these two properties wrap the
 False results that demonstrate strictness. QuickCheck on a plain Bool
 does not generate new inputs; it reports whether the already-computed
 Bool (from the exhaustive check inside `stronger` over the domain
 list) is True or False.
 
-5. ANSWER
+5. TEST REPORT
+
+=============================================
+== Exercise 3: Testing Properties Strength ==
+=============================================
+
+Domain:
+[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10]
+
+=== Strength Results ===
+1. (even x && x > 3) is stronger than even:
+True
+2. even is stronger than (even x || x > 3):
+True
+3. ((even x && x > 3) || even x) is stronger than even:
+True
+4. even is stronger than ((even x && x > 3) || even x):
+True
+5. even is NOT stronger than (even x && x > 3) [reverse of 1]:
+False
+6. (even x || x > 3) is NOT stronger than even [reverse of 2]:
+False
+
+=== QuickCheck ===
++++ OK, passed 1 test.
++++ OK, passed 1 test.
++++ OK, passed 1 test.
++++ OK, passed 1 test.
+*** Failed! Falsified (after 1 test):  
+*** Failed! Falsified (after 1 test):  
+
+=== Answer ===
+
+1. LEFT is stronger.
+2. RIGHT is stronger.
+3. Both are equally strong.
+4. Both are equally strong.
+
+=== Strength ordering ===
+
+prop1 > prop4 = prop3 > prop2
+where prop3 and prop4 are equivalent.
+ghci> 
+
+6. ANSWER
 
 Descending strength order: prop1 > prop4 = prop3 > prop2
 (prop3 and prop4 are equivalent, so they occupy the same level; all
 other relations in this order are strict, as confirmed in section 3.)
 
-6. LIMITATIONS
+7. LIMITATIONS
 
 - Strength is only checked on the finite domain [(-10)..10], not
   proven for all Int. A property could theoretically diverge outside
