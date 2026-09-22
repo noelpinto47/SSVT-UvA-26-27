@@ -105,7 +105,7 @@ shrinkForm (Impl f1 f2)  = [f1, f2] ++ [Impl f1' f2 | f1' <- shrinkForm f1] ++ [
 shrinkForm (Equiv f1 f2) = [f1, f2] ++ [Equiv f1' f2 | f1' <- shrinkForm f1] ++ [Equiv f1 f2' | f2' <- shrinkForm f2]
 
 
--- to write `forAll formGen`, so failures shrink to a minimal case.
+-- to write forAll formGen, so failures shrink to a minimal case.
 forAllForm :: Testable prop => (Form -> prop) -> Property
 forAllForm = forAllShrink formGen shrinkForm
 
