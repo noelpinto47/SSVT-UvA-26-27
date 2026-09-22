@@ -10,7 +10,7 @@ weaker xs p q = stronger xs q p
 -- Domain specified by the exercise
 
 domain :: [Int]
-domain = [1 .. 10]
+domain = [(-10) .. 10]
 
 -- The four properties from Workshop 2 Exercise 3
 
@@ -39,6 +39,15 @@ test1 = stronger domain prop1 prop4
 test2 :: Bool
 test2 = stronger domain prop4 prop2
 
+-- Reverse direction: does prop4 imply prop1? Should be False for strict strength.
+-- Counterexample: x = -4 (even, but not > 3)
+test1_reverse :: Bool
+test1_reverse = stronger domain prop4 prop1
+
+-- Reverse direction: does prop2 imply prop4? Should be False for strict strength.
+-- Counterexample: x = 5 (odd and > 3, so prop2 holds, prop4 doesn't)
+test2_reverse :: Bool
+test2_reverse = stronger domain prop2 prop4
 
 -- Property 3 is at least as strong as Property 4
 -- In fact, they are equivalent because:
@@ -68,6 +77,12 @@ prop_test3a = test3a
 prop_test3b :: Bool
 prop_test3b = test3b
 
+prop_test1_reverse :: Bool
+prop_test1_reverse = test1_reverse
+
+prop_test2_reverse :: Bool
+prop_test2_reverse = test2_reverse
+
 main :: IO ()
 main = do
     putStrLn (exercise 3 "Testing Properties Strength")
@@ -91,6 +106,12 @@ main = do
     putStrLn "4. even is stronger than ((even x && x > 3) || even x):"
     print test3b
 
+    putStrLn "5. even is NOT stronger than (even x && x > 3) [reverse of 1]:"
+    print test1_reverse
+
+    putStrLn "6. (even x || x > 3) is NOT stronger than even [reverse of 2]:"
+    print test2_reverse
+
     putStrLn ""
     putStrLn "=== QuickCheck ==="
 
@@ -98,6 +119,8 @@ main = do
     quickCheck prop_test2
     quickCheck prop_test3a
     quickCheck prop_test3b
+    quickCheck prop_test1_reverse
+    quickCheck prop_test2_reverse
 
     putStrLn ""
     putStrLn "=== Answer ==="

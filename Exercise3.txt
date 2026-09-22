@@ -1,45 +1,78 @@
-Design Report - Exercise 3: Testing Properties Strength
+Exercise 3 - Design and Test Report
+Time Spent: 120 min
 
-Time spent: 2hrs
+1. APPROACH
 
-Approach
+stronger xs p q checks "for all x in xs, p x implies q x" using the
+domain xs as a finite stand-in for all Int. Strength claims below are
+therefore domain-relative, not proven for all Int.
 
-stronger/weaker check "for all x in the domain, p x implies q x" over a
-finite domain, so strength here is domain-relative, not proven for all Int.
+Domain: [(-10)..10], as specified by the exercise.
 
-Domain: [1..10], as specified.
+The implication operator (-->) is imported from Lecture3 rather than
+redefined locally, since Lecture3 already defines the same operator.
 
-Implication operator
-Used (-->) from Lecture3 instead of writing my own `implies`. Lecture3
-defines the exact same thing (not p || q), and I'm already importing it for
-Exercise 8, so this adds no extra dependency.
+2. PROPERTIES
 
-Properties
 prop1 x = even x && x > 3
 prop2 x = even x || x > 3
 prop3 x = (even x && x > 3) || even x
 prop4 x = even x
 
-Strength reasoning
+3. STRENGTH REASONING
 
-1. prop1 -> prop4: (even x && x > 3) implies even x trivially (dropping a
-   conjunct). prop1 is stronger.
+1. prop1 -> prop4: (even x && x > 3) implies even x by dropping a
+   conjunct. Confirmed: test1 = True.
+   Strictness confirmed: the reverse (prop4 -> prop1) fails, i.e.
+   test1_reverse = False. Counterexample: x = -4. even (-4) = True,
+   so prop4 holds, but -4 > 3 is False, so prop1 fails. prop1 is
+   therefore strictly stronger than prop4.
 
-2. prop4 -> prop2: even x implies (even x || x > 3) trivially (adding a
-   disjunct). prop4 is stronger, prop2 is weaker.
+2. prop4 -> prop2: even x implies (even x || x > 3) by adding a
+   disjunct. Confirmed: test2 = True.
+   Strictness confirmed: the reverse (prop2 -> prop4) fails, i.e.
+   test2_reverse = False. Counterexample: x = 5. 5 > 3 is True, so
+   prop2 holds, but 5 is odd, so prop4 fails. prop4 is therefore
+   strictly stronger than prop2.
 
 3/4. prop3 and prop4 are equivalent: (A && B) || A reduces to A by
-   absorption, so prop3 = (even x && x>3) || even x is just even x on every
-   input. Checked both directions (stronger domain prop3 prop4 and
-   stronger domain prop4 prop3) to confirm.
+   absorption, so prop3 is logically identical to prop4 on every
+   input, including negatives. Confirmed in both directions:
+   test3a = True and test3b = True.
 
-Ordering (strongest to weakest):
-prop1 > prop4 = prop3 > prop2
+Ordering (strongest to weakest): prop1 > prop4 = prop3 > prop2
 
-Testing
+4. RESULTS
 
-Wrapped each stronger/weaker check as a `Bool` QuickCheck property
-(prop_test1..prop_test3b). The domain is fixed and finite, so QuickCheck
-isn't generating new inputs here - it's just confirming the Bool holds. The
-actual exhaustive check already happens inside `stronger`/`weaker` over the
-domain list.
+Domain: [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10]
+
+test1          = True   (prop1 -> prop4 holds)
+test2          = True   (prop4 -> prop2 holds)
+test1_reverse  = False  (prop4 -> prop1 fails; counterexample x = -4)
+test2_reverse  = False  (prop2 -> prop4 fails; counterexample x = 5)
+test3a         = True   (prop3 -> prop4 holds)
+test3b         = True   (prop4 -> prop3 holds)
+
+QuickCheck: prop_test1, prop_test2, prop_test3a, prop_test3b each
+passed 1 test, as expected for a True Bool. prop_test1_reverse and
+prop_test2_reverse were each "Falsified (after 1 test)" — this is the
+expected and correct outcome, since these two properties wrap the
+False results that demonstrate strictness. QuickCheck on a plain Bool
+does not generate new inputs; it reports whether the already-computed
+Bool (from the exhaustive check inside `stronger` over the domain
+list) is True or False.
+
+5. ANSWER
+
+Descending strength order: prop1 > prop4 = prop3 > prop2
+(prop3 and prop4 are equivalent, so they occupy the same level; all
+other relations in this order are strict, as confirmed in section 3.)
+
+6. LIMITATIONS
+
+- Strength is only checked on the finite domain [(-10)..10], not
+  proven for all Int. A property could theoretically diverge outside
+  this range.
+- No incomparable pairs occur among these four properties, so the
+  partial-order / Hasse-diagram case described in the assignment does
+  not arise here.
