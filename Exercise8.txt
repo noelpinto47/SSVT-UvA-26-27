@@ -99,17 +99,6 @@ prop_nsubPositive = forAllForm $ \f -> nsub f >= 1
 Every formula is trivially its own sub-formula, so the count is always ≥ 1.
 
 
-3. CORRECTNESS REASONING
-
-Q1 (sub): full correctness can't be proven by QuickCheck, only evidenced against two independent checks:
-
-prop_subContainsItself : a structural invariant, easy to check directly: f is always its own subformula by definition, so sub f must contain f.
-prop_subCorrect : cross-checks sub against isSubFormula. If the set-building implementation and the direct structural check agree on every generated formula, that's strong evidence sub is correct; this is the "test against an independent spec" approach from Haskell Road to Logic 7.7, the strongest testing gets without an actual induction proof.
-
-g in prop_subCorrect is drawn from oneof [formGen, elements xs] where xs comes from pattern-matching sub f directly (let Set xs = sub f, since SetOrd has no setToList export i.e same approach setSize uses), rather than purely independently of f. Drawing g fully independently would make almost every pair a trivial False == False case (g essentially never a real subformula of f by chance), so the property would pass without exercising the "true positive" branch. Mixing in elements xs guarantees some fraction of cases are genuine subformulae, and classify (isSubFormula g f) "positive case" reports that split in the QuickCheck output so the test report shows real coverage rather than only "N tests passed." The actual run (section 4) shows a 55.4% positive-case split, confirming the true-positive branch is exercised on more than half of all test cases, not just occasionally.
-
-Q2 (nsub): prop_nsubMatchesSub ties nsub to sub's own output size. prop_nsubMatchesIndependentCount ties it to subList, a ground-truth count built independently of SetOrd. Agreement across both is evidence nsub counts correctly and isn't merely consistent with a shared bug in sub.
-
 4. RESULTS
 
 sub properties:
