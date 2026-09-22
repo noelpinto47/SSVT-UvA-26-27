@@ -8,7 +8,7 @@ import Lecture3
 import Test.QuickCheck
 
 -- EXERCISE 7
--- TIME SPENT: 4 hours
+-- TIME SPENT: 6 hours
 
 -- step 3: fix the AND/OR structure
 -- e.g. r OR (p AND q)  becomes (r OR p) AND (r OR q)
