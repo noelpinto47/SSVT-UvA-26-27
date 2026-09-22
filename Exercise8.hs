@@ -149,10 +149,7 @@ prop_nsubMatchesSub :: Property
 prop_nsubMatchesSub = forAllForm $ \f -> nsub f == setSize (sub f)
 
 
--- Cross-checks nsub against subList, which is built
--- without touching SetOrd at all. This is the independent check that
--- was missing: prop_nsubMatchesSub alone couldn't catch a bug shared
--- between sub's unionSet and nsub's insertSet/inSet.
+-- Cross-checks nsub against subList which is an independent definition of sub-formulae.
 prop_nsubMatchesIndependentCount :: Property
 prop_nsubMatchesIndependentCount =
     forAllForm $ \f -> nsub f == length (nub (subList f))

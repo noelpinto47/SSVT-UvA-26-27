@@ -22,11 +22,11 @@ prop_subCorrect
 c.  nsub must equal the number of elements in sub i.e nsub f == setSize (sub f) 
 prop_nsubMatchesSub
 
-d. Cross-checks nsub against subList i.e nsub f == length (nub (subList f))
-prop_nsubMatchesIndependentCount
-
-e. There is always at least one sub-formula: the formula itself i.e nsub f >= 1
+d. There is always at least one sub-formula: the formula itself i.e nsub f >= 1
 prop_nsubPositive
+
+Additionally a property which cross-checks nsub against subList which is an independent definition of sub-formulae. i.e nsub f == length (nub (subList f))
+prop_nsubMatchesIndependentCount
 
 Note: isSubFormula is a second, independent definition of "is a subformula of" written directly from the informal definition rather than reusing any of sub's logic. subList is a second, independent implementation of subformula-listing for nsub, built without touching SetOrd at all, it is added because prop_nsubMatchesSub alone checks nsub against sub, and both share SetOrd's dedup machinery (unionSet/insertSet/inSet); a bug in that shared machinery could make both sides agree while both were wrong. subList closes that gap.
 
