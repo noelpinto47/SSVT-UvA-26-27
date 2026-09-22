@@ -1,0 +1,71 @@
+
+EXERCISE 7 DESIGN AND TEST REPORT
+
+Time Spent: ~6hrs
+
+
+
+-- DESIGN CHOICES
+
+'cnf :: Form -> Form' converts a formula to Conjunctive Normal
+Form (CNF) in 3 steps (using functions from Lecture 3):
+
+1. 'arrowfree' takes ==> and <=> and rewrites using AND, OR
+and NOT. For example a ==> b becomes NOT a OR b.
+
+2. 'nnf' pushes all NOTs inward until they sit directly on
+single variables. For example, NOT (a AND b) becomes NOT a OR NOT b.
+
+3. 'distribute' fixes the AND/OR structure by repeatedly applying the
+distributive law until no ANDs appear inside an OR.
+
+The three steps are put together using the . operator. A formula
+passes through arrowfree first, then nnf, and then distribute.
+
+'distribute :: Form -> Form' does step 3. When it finds an OR, it
+first recursively fixes everything inside. Then, it checks if any of
+those results is an AND using 'break isCnj'. If an AND is found, it lifts
+the AND out by wrapping each part of it in a new OR with the remaining
+formulas, then recurses because the result might need further fixing.
+If no AND is found than the OR is returned as is. If the formula is an AND,
+it distributes over each part inside it. Anything else (e.g. a variable
+or NOT variable) is fine in CNF, so it's returned unchanged.
+
+'genForm :: Int -> Gen Form' generates random formulas up to a depth.
+At depth 0, it generates a single variable from {1, 2, 3}. At bigger depths
+it picks one of the six formula types randomly using oneof. Conjunctions
+and disjunctions are always given two subformulas using vectorOf 2 to
+stop the formula growing too wide. Variables are limited to {1, 2, 3} so
+that, at most, 8 True/False combinations need to be checked per formula.
+Which is to keep tests fast.
+
+The depth is capped at 3 in the Arbitrary instance. With no cap,
+QuickCheck could generate increasingly large formulas over successive
+tests until distribute or the equivalence check becomes too slow to
+finish.
+
+
+
+-- PROPERTY TESTED
+
+Property: prop_cnfEquiv
+
+Checks that the original formula and the new CNF version return the
+same True / False result under every possible variable assignment.
+'genVals (propNames formula)' generates all assignments and 'evl'
+evaluates the formula under each one. Any conversion that changes
+the meaning of the formula is caught.
+
+
+
+- RESULTS
+
++++ OK, passed 100 tests.
+
+
+
+-- LIMITATION
+
+Variables are limited to [1, 2, 3} and depth to 3, so large formulas
+or deeply nested formulas are never tested. So, a bug that only appears
+in deeper structures wouldn't be detected.

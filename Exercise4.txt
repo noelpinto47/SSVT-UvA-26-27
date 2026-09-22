@@ -1,0 +1,72 @@
+
+EXERCISE 4 DESIGN AND TEST REPORT
+
+Time Spent: 3h 30m
+
+
+
+-- DESIGN CHOICES
+
+'isPermutation :: (Ord a) => [a] -> [a] -> Bool' checks if two lists
+are permutations of each other by sorting them and comparing them. If
+the two lists have the same elements in any order, sorting both will make
+identical lists.
+
+The exercise says that input lists can't contain duplicates. This
+makes the implementation easier because sort-and-compare works properly
+without duplicates. The generator enforces this by applying nub to
+remove duplicates from the generated lists before testing.
+
+'genNoDups = nub <$> arbitrary' generates a random list of integers and
+removes duplicates. shuffle is used to make a proper permuation
+of that list for properties that require two related lists. This makes sure
+the generated pair is always a genuine permutation which is needed
+for properties 3 and 4 to be meaningful.
+
+
+
+-- PROPERTIES TESTED
+
+Property 1: prop_permReflexive
+Checks that isPermutation list1 list1 is True for any list.
+It catches implementations that always return False, or that fail on
+identical inputs.
+
+Property 2: prop_permSymmetric
+Checks isPermutation list1 list2 == isPermutation list2 list1 for
+any list and a shuffle of it. A permutation relation has to be symmetric
+which means the order that the lists are passed shouldn't matter.
+It catches implemenations that compare the lists in a direction-dependent
+way, e.g. checking only if list1 is a subset of list2.
+
+Property 3: prop_permSameLength
+Checks if isPermutation list1 list2 is True, then the two lists
+have the same length. The ==> operator means the length check is only
+evaluated when the permutation check passes.
+Catches implementations that return True for lists of different lengths.
+
+Property 4: prop_permKnown
+Checks that isPermutation list1 list2 returns the same result as
+sort list1 == sort list2 directly. This basically is testing the
+implementation against its own definition and will always pass for
+the current implementation. I included it to make the relationship
+between isPermutation and sorting explicit.
+
+
+
+-- TEST RESULTS
+
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+
+
+
+-- LIMITATIONS
+
+Property 4 compares isPermutation against its own sorting logic, so it
+always passes regardless of if the implementation is right. It doesn't
+independenty verify anything.
+
+

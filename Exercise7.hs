@@ -8,7 +8,7 @@ import Lecture3
 import Test.QuickCheck
 
 -- EXERCISE 7
--- TIME SPENT: 4 hours
+-- TIME SPENT: 6 hours
 
 -- step 3: fix the AND/OR structure
 -- e.g. r OR (p AND q)  becomes (r OR p) AND (r OR q)
@@ -48,9 +48,8 @@ prop_cnfEquiv :: Form -> Bool
 prop_cnfEquiv formula = all (\valuation -> evl valuation formula == evl valuation (cnf formula)) (genVals (propNames formula))
 
 -- tells QuickCheck how to generate random formulas for testing
--- cap the size to avoid slow tests
 instance Arbitrary Form where
-    arbitrary = sized (\n -> genForm (min n 3))
+    arbitrary = genForm 3
 
 -- generate a random formula of a given size
 genForm :: Int -> Gen Form
@@ -64,39 +63,9 @@ genForm depth = oneof
                     , Equiv <$> genForm (depth `div` 2) <*> genForm (depth `div` 2)
                     ] -- formula <==> formula
 
+
 -- main function run the property test
 main :: IO ()
-main = quickCheck prop_cnfEquiv
-
-
-{- 
-
-
-CNF NOTES
-
-(a OR b) AND (NOT a OR c) AND (b OR NOT c)   -   is in CNF
-- because the whole thing is in ANDs
-- inside each AND, there are only ORs
-- inside each OR, you can only have variables or NOTs of variables
-
-p OR (q AND r)   -   is not in CNF
-- because there is an AND inside an OR
-
-in maths
-a(b+c) = ab + ac
-a OR (b AND c) = (a OR b) AND (a OR c)
-
-OR is like x
-AND is like +
-NOT is like -
-
-also
-p ==> q becomes NOT p OR q
-p <=> q becomes (p AND q) OR (NOT p AND NOT q)
-
-
-CNJ is AND
-DSJ is OR
-NEG is NOT
-
--}
+-- cap the size to avoid slow tests
+main = do
+    quickCheckWith stdArgs { maxSize = 3 } prop_cnfEquiv
