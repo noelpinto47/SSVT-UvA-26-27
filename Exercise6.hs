@@ -1,3 +1,5 @@
+module Exercise6 where
+
 main :: IO ()
 main = do
     let guilty = (filter (\suspect -> length (accusers suspect) == 3) boys)
