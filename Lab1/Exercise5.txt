@@ -41,51 +41,66 @@ Test report
     [1,2,1] and [2,1,1]     → False(element at index 2 is same(1 in both xs and ys))
     [1,2,3] and [4,5,6]     → False(not a permutation)
     [1,1,2,2] and [2,2,1,1] → True(Derangement despite duplicates)
+    [1,2,3] and [4,5]       → False(Not a permutation and but elements at each index different)
 
     All results were equal to the expected values
 
 
     Choice of properties
-    1) property1LengthIsSame
+    1) prop1_LengthIsSame
     This checks if the lengths of the inputs is the same which is a precondition for lists 
     to be permutations of each other. It is inherently weaker than property 2.
 
-    2) property2SortsToSameList
+    2) prop2_SortsToSameList
     This property essentially checks for permutations singlehandedly as all valid permutations
     sort to the same list.
 
-    3) property3AllIndicesDifferentValues
+    3) prop3_AllIndicesDifferentValues
     This property check that the elements at each index of xs and ys are different
+
+    4) prop4_isDerangementSymmetric
+    This property checks that flipping the arguments while keeping them the same has no impact on the result
+
+    5) prop5_nonEmptyListCannotBeDerangementOfItself
+    This property check that it is universally true that a list cannot be a derangement of itself.
+    6) prop6_reversesPreserveDerangement
+    This property checks that reversing both the lists has no impact on the result.
+    7) prop7_transformPreserveDerangement
+    This property checks that transformating each element of the two lists has no impact on the result.
 
     When put together property 2(2 implies 1) and property 3 cover the conditions needed to test for derangements
 
-    Ordered list of properties
-    1) property1LengthIsSame is weaker than property2SortsToSameList
+    Ordered list of properties(weakest to strongest, then equal in strength, then incomparable)
+    1) prop1_LengthIsSame is weaker than prop2_SortsToSameList
     Explanation
-    property2SortsToSameList implies property1LengthIsSame because if the lists sort to the same list then it must mean that the lengths of the lists were the same.
+    prop2_SortsToSameList implies prop1_LengthIsSame because if the lists sort to the same list then it must mean that the lengths of the lists were the same.
 
-    2)property1LengthIsSame is not comparable to property3AllIndicesDifferentValues 
+    2)prop1_LengthIsSame is neither stronger nor weaker to prop3_AllIndicesDifferentValues 
     Explanation
-    property1LengthIsSame does not imply property3AllIndicesDifferentValues because because lists of equal length can have same elements at each corresponding indexes example duplicate lists like [1,2,3] and [1,2,3]
-    property3AllIndicesDifferentValues does not imply property1LengthIsSame because lists can differ at each position and also be of unequal lengths like [1,2,3] [4,5]
-    so niether propertyt is weaker/stronger than the other
+    prop1_LengthIsSame does not imply prop3_AllIndicesDifferentValues because because lists of equal length can have same elements at each corresponding indexes example duplicate lists like [1,2,3] and [1,2,3]
+    prop3_AllIndicesDifferentValues does not imply prop1_LengthIsSame because lists can differ at each position and also be of unequal lengths like [1,2,3] [4,5]
 
-    3)property2SortsToSameList is not comparable to property3AllIndicesDifferentValues
+    3)prop2_SortsToSameList is neither stronger nor weaker to prop3_AllIndicesDifferentValues
     Explanation
-    property2SortsToSameList does not imply property3AllIndicesDifferentValues because counterexamples like [1,2,3] and [1,3,2] will satisfy property2SortsToSameList but not property3AllIndicesDifferentValues
-    property3AllIndicesDifferentValues does not imply property2SortsToSameList because counterexamples like [1,2,3] [4,5,6] satisfy property3AllIndicesDifferentValues but not property2SortsToSameList
+    prop2_SortsToSameList does not imply prop3_AllIndicesDifferentValues because counterexamples like [1,2,3] and [1,3,2] will satisfy prop2_SortsToSameList but not prop3_AllIndicesDifferentValues
+    prop3_AllIndicesDifferentValues does not imply prop2_SortsToSameList because counterexamples like [1,2,3] [4,5,6] satisfy prop3_AllIndicesDifferentValues but not prop2_SortsToSameList
 
+    prop2_SortsToSameList implies prop1_LengthIsSame was tested with Haskell - result True as expected
+    prop3_AllIndicesDifferentValues implies prop2_SortsToSameList was tested with Haskell - result False as expected
+    prop3_AllIndicesDifferentValues implies prop1_LengthIsSame was tested with Haskell - result False as expected
 
-    property2SortsToSameList implies property1LengthIsSame was tested with Haskell - result True as expected
-    property3AllIndicesDifferentValues implies property2SortsToSameList was tested with Haskell - result False as expected
-    property3AllIndicesDifferentValues implies property1LengthIsSame was tested with Haskell - result False as expected
+    The folllowing properties test different basic laws for derangements and cannot be compared to each other as neither is naturally a strengthening or weakening of the other.
 
-    TODO Stuff about properties implying each other and quickcheck not finding counterexamples.
+    4) prop_isDerangementSymmetric: It does not say anything about any other property by itself 
+
+    5) prop_nonEmptyListCannotBeDerangementOfItself: It does not say anything about any other property by itself
+
+    6) prop_reversesPreserveDerangement: It does not say anything about any other property by itself
     
 
 Conclusion
 
-    The implementation works as expected for all the tested scenarios. 
+    The implementation works as expected for all the tested scenarios in the domain. 
     The simple scenarios like empty lists, lists of unequal length and permutation but not deragements work as expected
     The implementation identifies which lists are valid derangements.
     The more complex scenarios like lists with duplicate elements which are not deragements and lists wth duplicates which are still valid derangements also works as expected.

@@ -1,33 +1,20 @@
 module Exercise8 where
 
 import SetOrd
-import Test.QuickCheck (Gen, Property, forAll, quickCheck, choose, frequency, vectorOf, sized, oneof)
+import Test.QuickCheck
 import Lecture3
+import Data.List (nub)
 
 sub :: Form -> Set Form
 sub f@(Prop x) = Set [f]
-
 sub f@(Neg g) = unionSet (Set [f]) (sub g)
-
 sub f@(Cnj fs) = foldl unionSet (Set [f]) (map sub fs)
-
 sub f@(Dsj fs) = foldl unionSet (Set [f]) (map sub fs)
-
-sub f@(Impl f1 f2) =
-    unionSet
-        (unionSet (Set [f]) (sub f1))
-        (sub f2)
-
-sub f@(Equiv f1 f2) =
-    unionSet
-        (unionSet (Set [f]) (sub f1))
-        (sub f2)
+sub f@(Impl f1 f2) = unionSet (unionSet (Set [f]) (sub f1)) (sub f2)
+sub f@(Equiv f1 f2) = unionSet (unionSet (Set [f]) (sub f1)) (sub f2)
 
 
---------------------------------------------------------------------------------
 -- Counts the EXACT number of distinct sub-formulae
---------------------------------------------------------------------------------
-
 nsub :: Form -> Int
 nsub f = fst (go (Set []) f)
   where
@@ -72,10 +59,16 @@ nsub f = fst (go (Set []) f)
         in (n1 + n2, seen2)
 
 
---------------------------------------------------------------------------------
--- Generator for random propositional formulas
---------------------------------------------------------------------------------
+subList :: Form -> [Form]
+subList f@(Prop _)      = [f]
+subList f@(Neg g)       = f : subList g
+subList f@(Cnj fs)      = f : concatMap subList fs
+subList f@(Dsj fs)      = f : concatMap subList fs
+subList f@(Impl f1 f2)  = f : subList f1 ++ subList f2
+subList f@(Equiv f1 f2) = f : subList f1 ++ subList f2
 
+
+-- Generator for random propositional formulas
 formGen :: Gen Form
 formGen = sized gen
   where
@@ -102,84 +95,81 @@ formGen = sized gen
             , (2, Equiv <$> gen (n `div` 2) <*> gen (n `div` 2))
             ]
 
+-- Structural shrinker
+shrinkForm :: Form -> [Form]
+shrinkForm (Prop x)      = [Prop x' | x' <- shrink x, x' >= 0]
+shrinkForm (Neg f)       = f : [Neg f' | f' <- shrinkForm f]
+shrinkForm (Cnj fs)      = fs ++ [Cnj fs' | fs' <- shrinkList shrinkForm fs]
+shrinkForm (Dsj fs)      = fs ++ [Dsj fs' | fs' <- shrinkList shrinkForm fs]
+shrinkForm (Impl f1 f2)  = [f1, f2] ++ [Impl f1' f2 | f1' <- shrinkForm f1] ++ [Impl f1 f2' | f2' <- shrinkForm f2]
+shrinkForm (Equiv f1 f2) = [f1, f2] ++ [Equiv f1' f2 | f1' <- shrinkForm f1] ++ [Equiv f1 f2' | f2' <- shrinkForm f2]
 
---------------------------------------------------------------------------------
+
+-- to write forAll formGen, so failures shrink to a minimal case.
+forAllForm :: Testable prop => (Form -> prop) -> Property
+forAllForm = forAllShrink formGen shrinkForm
+
+
 -- Independent definition:
 -- "g is a sub-formula of f"
---------------------------------------------------------------------------------
-
 isSubFormula :: Form -> Form -> Bool
-isSubFormula g f
-    | g == f = True
-
-isSubFormula g (Neg f) =
-    isSubFormula g f
-
-isSubFormula g (Cnj fs) =
-    any (isSubFormula g) fs
-
-isSubFormula g (Dsj fs) =
-    any (isSubFormula g) fs
-
-isSubFormula g (Impl f1 f2) =
-    isSubFormula g f1 || isSubFormula g f2
-
-isSubFormula g (Equiv f1 f2) =
-    isSubFormula g f1 || isSubFormula g f2
-
-isSubFormula _ (Prop _) =
-    False
+isSubFormula g f | g == f = True
+isSubFormula g (Neg f) = isSubFormula g f
+isSubFormula g (Cnj fs) = any (isSubFormula g) fs
+isSubFormula g (Dsj fs) = any (isSubFormula g) fs
+isSubFormula g (Impl f1 f2) = isSubFormula g f1 || isSubFormula g f2
+isSubFormula g (Equiv f1 f2) = isSubFormula g f1 || isSubFormula g f2
+isSubFormula _ (Prop _) = False
 
 
---------------------------------------------------------------------------------
 -- Helper (SetOrd has no built-in size function)
---------------------------------------------------------------------------------
-
 setSize :: Set a -> Int
 setSize (Set xs) = length xs
 
 
---------------------------------------------------------------------------------
 -- QuickCheck property 1
 -- Every formula is a sub-formula of itself.
---------------------------------------------------------------------------------
-
 prop_subContainsItself :: Property
-prop_subContainsItself =
-    forAll formGen $ \f ->
-        inSet f (sub f)
+prop_subContainsItself = forAllForm $ \f -> inSet f (sub f)
 
 
---------------------------------------------------------------------------------
 -- QuickCheck property 2
 -- sub f should contain exactly the formulas that are structurally
 -- sub-formulae of f.
---------------------------------------------------------------------------------
-
 prop_subCorrect :: Property
 prop_subCorrect =
-    forAll formGen $ \f ->
-        forAll formGen $ \g ->
-            inSet g (sub f) == isSubFormula g f
+    forAllForm $ \f ->
+        let Set xs = sub f
+        in forAll (oneof [formGen, elements xs]) $ \g -> classify (isSubFormula g f) "positive case" $ inSet g (sub f) == isSubFormula g f
 
 
---------------------------------------------------------------------------------
 -- QuickCheck property 3 for nsub
 -- nsub must equal the number of elements in sub.
---------------------------------------------------------------------------------
-
 prop_nsubMatchesSub :: Property
-prop_nsubMatchesSub =
-    forAll formGen $ \f ->
-        nsub f == setSize (sub f)
+prop_nsubMatchesSub = forAllForm $ \f -> nsub f == setSize (sub f)
 
 
---------------------------------------------------------------------------------
+-- Cross-checks nsub against subList which is an independent definition of sub-formulae.
+prop_nsubMatchesIndependentCount :: Property
+prop_nsubMatchesIndependentCount =
+    forAllForm $ \f -> nsub f == length (nub (subList f))
+
+
 -- QuickCheck property 4 for nsub
 -- There is always at least one sub-formula: the formula itself.
---------------------------------------------------------------------------------
-
 prop_nsubPositive :: Property
-prop_nsubPositive =
-    forAll formGen $ \f ->
-        nsub f >= 1
+prop_nsubPositive = forAllForm $ \f -> nsub f >= 1
+
+main :: IO ()
+main = do
+    putStrLn (exercise 8 "Sub-formulae (sub, nsub)")
+
+    putStrLn "-- sub --"
+    quickCheckWith stdArgs { maxSuccess = 500 } prop_subContainsItself
+    quickCheckWith stdArgs { maxSuccess = 500 } prop_subCorrect
+
+    putStrLn ""
+    putStrLn "-- nsub --"
+    quickCheckWith stdArgs { maxSuccess = 500 } prop_nsubMatchesSub
+    quickCheckWith stdArgs { maxSuccess = 500 } prop_nsubMatchesIndependentCount
+    quickCheckWith stdArgs { maxSuccess = 500 } prop_nsubPositive
