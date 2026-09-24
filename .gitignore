@@ -5,10 +5,9 @@ execution_instruction.md
 *.hi
 *.o
 
-*
 *.yaml
 *.yaml.lock
-*.pdf
 
 !*.hs
 !*.txt
+!*.pdf
