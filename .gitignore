@@ -1,6 +1,7 @@
 .stack-work/
 codegrade-exercises.cabal
 execution_instruction.md
+execution/*
 
 *.hi
 *.o
