@@ -1,0 +1,66 @@
+1 Design Choice
+
+1.1 Operations implementation
+
+1.1.1 Union
+The ++ operator is used to concatenate two lists. Hence, we can use this operator on our two sets a and b. After that we still need to remove the duplicates, sort and apply the Set function on it. This is done on all the operations as well as the domain value generators. Therefore we made a function toSet which we use.
+
+1.1.2 Intersection
+For the Intersection, we use the filter function. With it, we check if every element in the Set a is contained in the Set b. If that is the case, we keep the element. Subsequently, at the end there are only elements remaining which are contained in both a and b. On these elements, the toSet function is applied.
+
+1.1.3 Difference
+Similarly to the Intersection function, we again apply the filter function, but now we remove every element from a which is not contained in b. And at the end, again the toSet function.
+
+
+1.2 Properties implementation
+
+For each set that we use in our test properties, we need to generate one with forAll. That is why there are nested forAll functions.
+
+1.2.1 Commutativity Union
+The commutativity states that the union of two sets a and b should have the same result, regardless of their order. This results in the statement setUnion a b == setUnion b a.
+
+1.2.2 Associativity
+Associativity states that the grouping of sets when forming the intersection does not affect the final set. With parenthesis, we force the grouping of the sets a,b and b,c. After that, the results are compared.
+
+1.2.3 Idempotence
+The intersection of a set with itself should result in the same set.
+
+1.2.4 Absorption
+The intersection with the empty set should result in the empty set. In the SetOrd is a empty set defined, this is what we used in this property and we calculate the intersection of a and emptySet.
+
+1.2.5 Distributivity
+https://de.flamath.com/wp-content/uploads/venn-distributivgesetz-schnittmenge-uber-vereinigung.png
+With distributivity it is meant that the intersection of the union of two sets is the same as if you first build the intersection and then apply the union.
+A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C)
+This is tested with this property. Note that we use here three nested forAll generators as we also need three different sets.
+
+1.2.6 Cardinality
+For the cardinality property we needed a way to calculate the amount of elements in a set. This is what the getSetLength function is for. This function calculates the length recursivly with pattern matching.
+
+Cardinality states that for finite sets, the size of the intersection is related to the size of the individual sets and their union.
+|A ∩ B| = |A| + |B| - |A ∪ B|
+We use this formula to implement our cardinality property.
+
+2 Test Report
+
+For the domains I used QuickCheck to generate a list of arbitrary Int and Float values. Again we use the toSet function for that. Moreover, the fmap function is needed here, because it is a Generator.
+
+ghci> main
+Int domain quickCheck generator
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+Float domain quickCheck generator
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+
+We can see that on each domain, all the tests are correct. We can therefore conclude that for all the defined properties, our implementations of the set operations on both the Int and Float domain is also correct.
+
+Time spent: ~3 hours
