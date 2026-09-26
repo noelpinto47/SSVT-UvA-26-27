@@ -62,7 +62,7 @@ prop_emptyNotSerial domain =
     not (null domain) ==> not (isSerial domain [])
 
 -- 3. R is serial when x mod n is equal to y mod n for that both x and y should exist in domain A. 
--- I can test R is serial by taking x arbitrary and then assuming y = x, then always y will be in domain A as x is in domain A
+-- I can test R is serial by taking x arbitrary and then 'choosing' y = x, then always y will be in domain A as x is in domain A
 -- and since y = x, x mod n will always be equal to y mod n when n > 0 
 -- Proof by universal generalization (can also be achieved by proof by contradiction)
 
