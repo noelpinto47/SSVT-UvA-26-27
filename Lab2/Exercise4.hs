@@ -85,6 +85,9 @@ exercise x name
 main :: IO ()
 main = do
     putStrLn (exercise 4 "Serial relations (isSerial)")
+    putStrLn "-- EXAMPLES --"
+    putStrLn "Is [(1,2),(2,3),(3,1)] serial on [1,2,3]?"
+    print (isSerial [1,2,3] [(1,2),(2,3),(3,1)] :: Bool)
 
     putStrLn "-- PROPERTIES --"
     putStrLn "1. Identity relation is serial"
