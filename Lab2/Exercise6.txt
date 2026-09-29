@@ -1,0 +1,53 @@
+Design report
+
+1)Definitions
+    1.1) Symmetric closure is defined in Exercise3.txt
+    1.2) Transitive closure  is defined in Exercise5.txt
+
+2)Testing strategy
+    2.1) Testing with a variety of domains which satisy type Rel a = [(a,a)] which is the basis for both the trClos and symClos. Idea is to test common as well as known edge cases.
+        2.1.1)Testing symClos
+            Domains intSymDomain, charSymDomain, stringSymDomain, boolSymDomain
+            Notables test cases-
+                ->Empty set to see if result is empty set
+                ->[(1,2), (2,3), (3,4)] to see if common expected case works
+                ->[(1,2), (2,1)] to see if check a new (2,1) is not created
+                ->[(1,1)] to see if another (1,1) is not created
+
+        2.1.2) Testing with trClos
+            Domains intTrDomain, charTrDomain, stringTrDomain, boolTrDomain
+            Notable test cases-
+                ->Empty set to see if result is empty set
+                ->[(1,2), (2,3)] to see if common expected case works with just one iteration over the list needed
+                ->[(1,2), (2,3), (3,4)] to see if the (1,3) created in one iteration leads to a (1,4) as well due to the (1,3),(3,4) pair ie multi iteration
+                ->[(1,2), (2,3), (3,1)] to see if it creates a (1,1) (cyclic pair) due to the (1,3), (3,1) pairs
+                ->[(1,2), (3,4)] to see if list remains the exact same
+
+    2.2)Testing with random quickcheck inputs
+        2.2.1) Testing symClos
+        To test used prop2_SymClose_symmetricElementShouldExist, prop3_SymClose_originalPairsRemain, prop4_SymClose_idempotent, prop5_SymClose_noDuplicatePairs because these properties are not
+        sensitive to duplicates that quickcheck may ocassionally generate.
+
+        prop1_SymClose_SizeIsGreaterOrEqual will lead to failures if quickcheck generates duplicates(rare but possible) ex. [(1,2), (1,2), (1,2)] has size 2 
+        but its symmetric closure [(1,2), (2,1)] would have size 2.
+
+        2.2.1) Testing trClos
+        Similarly used prop1_trClose_transitiveElementShouldExist, prop2_trClose_idempotent, prop3_trClose_noDuplicatePairs,prop5_trClose_ContainsOriginal to test because these properties are not 
+        sensitive to duplicates that quickcheck may ocassionally generate.
+
+        prop4_trClose_SizeGreaterOrEqual will lead to failure if quickcheck generates duplicates(rare but possible) ex. [(1,2), (1,2), (1,2), (2,3)] has size 3
+        but its transitive closure [(1,2), (2,2), (1,3)] has size 3.
+
+
+    2.3)Testing with self generated random inputs 
+        To test all properties with sets which did not contain any duplicates a random set generator genSmallIntList was used.
+        This takes a n at random between 0 and 10 and creates a sorted list of unique ints ranging between (-10,10)
+        One domain is sufficient here because the other hardcoded domains already sufficiently test the other domains 
+        to give enough confidence that if this random generator works the others should also work.
+
+
+3)Conclusion
+Testing with a variety of hardcoded domain test cases and on the basis of prop2_SymClose_symmetricElementShouldExist, prop3_SymClose_originalPairsRemain, prop5_SymClose_noDuplicatePairs for sym_Clos we can conclude that this function works as expected.
+Testing with a variety of hardcoded domain test cases and on the basis of of prop1_trClose_transitiveElementShouldExist, prop5_trClose_ContainsOriginal, prop3_trClose_noDuplicatePairs for tr_Clos concludes that it also works as expected.
+
+Time Spent - ~3 hours
