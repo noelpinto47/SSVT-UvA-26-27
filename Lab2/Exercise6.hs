@@ -1,9 +1,11 @@
+module Exercise6 where
+
 import Data.List
 import System.Random
 import Test.QuickCheck
 
 import Exercise3 (symClos)
-import Exercise5 (transClos)
+import Exercise5 (trClos, Rel)
 
 main :: IO ()
 main = do
@@ -24,12 +26,12 @@ main = do
     quickCheck prop4_property_idempotentSymClos_random
     quickCheck prop5_property_noDuplicatePairs_random
 
-    putStrLn("QuickCheck tests on transClos properties:")
+    putStrLn("QuickCheck tests on trClos properties:")
     quickCheck prop1_property_transitiveElementShouldExist
     quickCheck prop2_property_idempotentTransClos
     quickCheck prop3_property_noDuplicatePairsTransClos
 
-    putStrLn("QuickCheck tests on transClos properties with random sets:")
+    putStrLn("QuickCheck tests on trClos properties with random sets:")
     quickCheck prop1_property_transitiveElementShouldExist_random
     quickCheck prop2_property_idempotentTransClos_random
     quickCheck prop3_property_noDuplicatePairsTransClos_random
@@ -94,15 +96,15 @@ genSmallIntList = do
 -- QuickCheck properties for transitive closure
 --Every pair in the transitive closure should have its transitive counterpart.
 prop1_property_transitiveElementShouldExist :: Rel Int -> Bool
-prop1_property_transitiveElementShouldExist r = all (\(x,y) -> all (\(y',z) -> y /= y' || (x,z) `elem` transClos r) r) (transClos r)
+prop1_property_transitiveElementShouldExist r = all (\(x,y) -> all (\(y',z) -> y /= y' || (x,z) `elem` trClos r) r) (trClos r)
 
 --Applying transitive closure twice changes nothing further:
 prop2_property_idempotentTransClos :: Rel Int -> Bool
-prop2_property_idempotentTransClos r = transClos (transClos r) == transClos r
+prop2_property_idempotentTransClos r = trClos (trClos r) == trClos r
 
 --The result should not contain duplicate pairs.
 prop3_property_noDuplicatePairsTransClos :: Rel Int -> Bool
-prop3_property_noDuplicatePairsTransClos r = length (transClos r) == length (nub (transClos r))
+prop3_property_noDuplicatePairsTransClos r = length (trClos r) == length (nub (trClos r))
 
 --Same properties with randomly generated sets of integers
 prop1_property_transitiveElementShouldExist_random :: Property
