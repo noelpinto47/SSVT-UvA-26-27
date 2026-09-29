@@ -7,6 +7,7 @@ type Rel a = [(a, a)]
 -- A relation R is serial on domain A if every element in A has at least one outgoing pair.
 -- isSerial :: Eq a => [a] -> Rel a -> Bool
 
+-- sample hardcode values for testing
 k = 2
 domain = [1,2,3]
 rel = [(1,2), (2,3), (3,1)]
@@ -32,19 +33,6 @@ isSerial :: Eq a => [a] -> Rel a -> Bool
 isSerial domain rel = all (\x -> checkOne x domain rel) domain
 
 
--- Eq a => - this is type constraint, it means a can be any type, but it must support equality checking (==) since the function has ==
--- [a] -- domain
--- Rel a - type alias for relation defined at the top of the file, can also be replaced by [(a,a)]
--- Bool - the output of the function
-
--- [(1,2), (2,3), (3,1)]  -- serial on [1,2,3]
--- [(1,1), (2,2), (3,3)]  -- identity relation
--- []                      -- empty relation
-
--- => - Type Constraint
--- -> - Function arrow
-
-
 -- Properties:
 -- 1. Is Identity relation serial?
 
@@ -65,9 +53,11 @@ prop_emptyNotSerial domain = not (null domain) ==> not (isSerial domain [])
 
 n = 3 -- a value 3 for testing without quickcheck
 
+-- A relation R is serial on domain A if every element in domain A has at least one outgoing pair.
 modRel :: Int -> [Int] -> Rel Int
 modRel n domain = [ (x,y) | x <- domain, y <- domain, x `mod` n == y `mod` n]
 
+-- Test if the modRel is serial
 prop_serialModRel :: [Int] -> Int -> Property
 prop_serialModRel domain n = n > 0 ==> isSerial domain (modRel n domain)
 
@@ -98,5 +88,16 @@ main = do
     quickCheck prop_serialModRel
 
 
+-- Notes:
+-- Eq a => - this is type constraint, it means a can be any type, but it must support equality checking (==) since the function has ==
+-- [a] -- domain
+-- Rel a - type alias for relation defined at the top of the file, can also be replaced by [(a,a)]
+-- Bool - the output of the function
 
+-- [(1,2), (2,3), (3,1)]  -- serial on [1,2,3]
+-- [(1,1), (2,2), (3,3)]  -- identity relation
+-- []                      -- empty relation
+
+-- => - Type Constraint
+-- -> - Function arrow
 
