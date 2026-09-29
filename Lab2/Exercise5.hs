@@ -40,28 +40,28 @@ trClos r = sort result
 -- else loop r next — otherwise, continue with next as the new current
 
 -- Simons function for a fancy banner in the exercise string
-exercise :: Integer -> String -> String
-exercise x name
-  | x == 1 = banner
-  | otherwise = "\n" ++ banner
-  where
-    contents = "== Exercise " ++ show x ++ ": " ++ name ++ " =="
-    delimiter = replicate (length contents) '='
-    banner = delimiter ++ "\n" ++ contents ++ "\n" ++ delimiter
+-- exercise :: Integer -> String -> String
+-- exercise x name
+--   | x == 1 = banner
+--   | otherwise = "\n" ++ banner
+--   where
+--     contents = "== Exercise " ++ show x ++ ": " ++ name ++ " =="
+--     delimiter = replicate (length contents) '='
+--     banner = delimiter ++ "\n" ++ contents ++ "\n" ++ delimiter
 
---- MAIN
-main :: IO ()
-main = do
-    putStrLn (exercise 5 "Transitive closure (trClos)")
+-- MAIN
+-- main :: IO ()
+-- main = do
+--     putStrLn (exercise 5 "Transitive closure (trClos)")
 
-    putStrLn "-- EXAMPLES --"
-    putStrLn "Transitive closure of [(1,2),(2,3),(3,4)] is:"
-    print (trClos [(1,2),(2,3),(3,4)] :: Rel Int)
-    putStrLn "Transitive closure of [(1,2),(2,3),(3,1)] is:"
-    print (trClos [(3,1),(2,3),(1,2)] :: Rel Int)
-    putStrLn "Transitive closure of [(1,2),(2,1)] is:"
-    print (trClos [(1,2),(2,1)] :: Rel Int)
-    putStrLn "Transitive closure of [(1,2),(1,2),(2,3)] is:"
-    print (trClos [(1,2),(1,2),(2,3)] :: Rel Int)
-    putStrLn "Transitive closure of [] is:"
-    print (trClos [] :: Rel Int)
+--     putStrLn "-- EXAMPLES --"
+--     putStrLn "Transitive closure of [(1,2),(2,3),(3,4)] is:"
+--     print (trClos [(1,2),(2,3),(3,4)] :: Rel Int)
+--     putStrLn "Transitive closure of [(1,2),(2,3),(3,1)] is:"
+--     print (trClos [(3,1),(2,3),(1,2)] :: Rel Int)
+--     putStrLn "Transitive closure of [(1,2),(2,1)] is:"
+--     print (trClos [(1,2),(2,1)] :: Rel Int)
+--     putStrLn "Transitive closure of [(1,2),(1,2),(2,3)] is:"
+--     print (trClos [(1,2),(1,2),(2,3)] :: Rel Int)
+--     putStrLn "Transitive closure of [] is:"
+--     print (trClos [] :: Rel Int)

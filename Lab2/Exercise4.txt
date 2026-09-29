@@ -21,7 +21,9 @@ Property C: For R = {(x,y) | x ≡ y (mod n)} with n > 0, R is serial on any dom
 
 3. ANSWERS TO GIVEN QUESTIONS
 
-Q1: Is R = {(x,y) | x ≡ y (mod n)} serial, and when?
+Case: Consider the relation R = {(x, y) | x ≡ y(mod n)}, where (mod n) is themodulo function in modular arithmetic and n > 0.
+
+Q1: Discuss whether (and when) R is serial.
 Answer: R is serial for every n > 0 and every domain A. 
 The reason is that R is reflexive: x mod n == x mod n always holds, so (x,x) is in R for every x. 
 Every x therefore has at least one y, namely itself, and y = x is in A because x is. 
@@ -44,7 +46,7 @@ x was arbitrary, so every x in A has a y in A with xRy.
 Therefore R is serial on A.
 
 
-QuickCheck properties for nsub:
+QuickCheck properties:
 
 Property A: prop_identityIsSerial. For any domain, the identity relation on it is serial.
 
@@ -79,11 +81,4 @@ isSerial works as intended on the tested cases:
 - the empty relation on a non-empty domain is not
 - the mod-n relation is serial.
 The tests and the proof agree. The proof covers all domains and all n > 0.
-
-
-7. LIMITATIONS
-1. QuickCheck only tests random [Int] domains, so it never covers other types.
-2. Random Int lists with random relations are almost never serial, so a property saying "random relation is serial" is not a useful test. That's why I used constructed relations (identity, mod, empty).
-3. modRel builds all pairs, so it is O(|A|²). This is fine for QuickCheck sizes but slow for large domains.
-4. mod by 0 throws an exception, so n = 0 is excluded with Positive.
 

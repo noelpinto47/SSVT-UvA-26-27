@@ -45,9 +45,5 @@ ghci>
 
 6. CONCLUSION
 
-trClos computes the transitive closure as an ordered list without duplicates, and it matches the definition in Q1.
-The termination argument in Q2 shows the loop always stops.
-
-7. LIMITATIONS
-- It is not efficient. Each round recomputes current @@ r over all pairs.
-- The fixed-point check sorts both lists in every round, which adds cost. Comparing lengths would be enough, because next always contains current.
+trClos computes the transitive closure as an ordered list without duplicates using nub.
+The termination argument shows the loop always stops.
