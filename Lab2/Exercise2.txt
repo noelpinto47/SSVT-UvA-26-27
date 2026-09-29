@@ -60,7 +60,15 @@ Float domain quickCheck generator
 +++ OK, passed 100 tests.
 +++ OK, passed 100 tests.
 +++ OK, passed 100 tests.
+Using scratch generator from Exercise1
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
 
 We can see that on each domain, all the tests are correct. We can therefore conclude that for all the defined properties, our implementations of the set operations on both the Int and Float domain is also correct.
+One note about the scratch generator: Even though we test the properties with "quickCheck" prop_... this is only the testrunner itself. Which generator is used depends only on the property definition, not on the quickCheck call. 
 
-Time spent: ~3 hours
+Time spent: ~4 hours

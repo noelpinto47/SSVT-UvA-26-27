@@ -5,8 +5,6 @@ import System.Random
 import SetOrd
 import Test.QuickCheck
 
--- TODO: Also use scratch generator from Exercise1
-
 genIntSet :: Gen (Set Int)
 genIntSet = fmap toSet (listOf arbitrary :: Gen [Int])
 
@@ -62,6 +60,48 @@ getSetLength (Set (x:xs)) = 1 + getSetLength(Set (xs))
 prop_cardinality :: Property
 prop_cardinality = forAll genIntSet (\a ->
     forAll genIntSet (\b -> 
+            getSetLength (setIntersection a b) == getSetLength a + getSetLength b - getSetLength (setUnion a b)
+        )
+    )
+
+-- generates a random set of integers with size 0-20, and values (-10)-10
+scratchRandomSetGen :: Gen (Set Int)
+scratchRandomSetGen = do
+    size <- choose (0, 20)
+    randomValues <- sequence (replicate size (choose (-10, 10)))
+    return (list2set randomValues)
+
+-- Additional property tests using the scratch generator from Exercise1
+prop_commutativityUnionExercise1 :: Property
+prop_commutativityUnionExercise1 = forAll scratchRandomSetGen (\a -> forAll scratchRandomSetGen (\b -> setUnion a b == setUnion b a))
+
+prop_associativityExercise1 :: Property
+prop_associativityExercise1 = forAll scratchRandomSetGen (\a ->
+    forAll scratchRandomSetGen (\b -> 
+        forAll scratchRandomSetGen (\c ->
+            setIntersection c (setIntersection a b) == setIntersection a (setIntersection b c)
+            )
+        )
+    )
+
+prop_idempotenceExercise1 :: Property
+prop_idempotenceExercise1 = forAll scratchRandomSetGen (\a -> setIntersection a a == a)
+
+prop_absorptionExercise1 :: Property
+prop_absorptionExercise1 = forAll scratchRandomSetGen (\a -> setIntersection a emptySet == emptySet)
+
+prop_distributivityExercise1 :: Property
+prop_distributivityExercise1 = forAll scratchRandomSetGen (\a ->
+    forAll scratchRandomSetGen (\b ->
+        forAll scratchRandomSetGen (\c ->
+            setIntersection a (setUnion b c) == setUnion (setIntersection a b) (setIntersection a c)
+            )
+        )
+    )
+
+prop_cardinalityExercise1 :: Property
+prop_cardinalityExercise1 = forAll scratchRandomSetGen (\a ->
+    forAll scratchRandomSetGen (\b ->
             getSetLength (setIntersection a b) == getSetLength a + getSetLength b - getSetLength (setUnion a b)
         )
     )
@@ -122,3 +162,11 @@ main = do
     quickCheck prop_absorptionFloat
     quickCheck prop_distributivityFloat
     quickCheck prop_cardinalityFloat
+
+    putStrLn "Using scratch generator from Exercise1"
+    quickCheck prop_commutativityUnionExercise1
+    quickCheck prop_associativityExercise1
+    quickCheck prop_idempotenceExercise1
+    quickCheck prop_absorptionExercise1
+    quickCheck prop_distributivityExercise1
+    quickCheck prop_cardinalityExercise1
