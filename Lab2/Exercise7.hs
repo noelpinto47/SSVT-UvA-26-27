@@ -4,8 +4,8 @@ import Data.List
 import System.Random
 import SetOrd
 import Test.QuickCheck
+import GHC.OldList (union)
 
--- TODO: Replace these algorithms with the ones from Exercise 3 and 5 
 
 type Rel a = [(a,a)]
 
@@ -15,15 +15,16 @@ infixr 5 @@
 r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
 trClos :: Ord a => Rel a -> Rel a
-trClos r = fp r
+trClos r = loop r r
   where
-    fp current
-      | current == next = current
-      | otherwise       = fp next
-      where next = nub (sort (current ++ (current @@ r)))
+    loop r current = 
+        let next = current `union` (current @@ r)
+        in if sort next == sort current
+           then next
+           else loop r next
 
 symClos :: Ord a => Rel a -> Rel a
-symClos relation = nub $ ( map (\(a,b) -> (b,a)) relation ++ relation)
+symClos r = sort $ r ++ [(y,x) | (x,y) <- r]
 
 main :: IO ()
 main = do
