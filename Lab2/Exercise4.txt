@@ -1,0 +1,89 @@
+Design and Test Report - Exercise 4:
+
+Time Spent: 1hr
+
+1. APPROACH
+
+A relation R is serial on domain A if every x in A has at least one y in A with (x,y) in R.
+
+So I split the check into two parts:
+1. checkOne k domain rel filters the pairs of rel that start with k, then checks that at least one of them has its second element in domain.
+2. isSerial domain rel uses all to apply checkOne to every element of the domain.
+
+2. PROPERTIES
+
+Property A: The identity relation {(x,x) | x in A} is serial on any domain A. Every x has the pair (x,x), and x is in A.
+
+Property B: If the domain is not empty, the empty relation is not serial. No element has an outgoing pair.
+
+Property C: For R = {(x,y) | x ≡ y (mod n)} with n > 0, R is serial on any domain (used to test Q2).
+
+
+3. ANSWERS TO GIVEN QUESTIONS
+
+Q1: Is R = {(x,y) | x ≡ y (mod n)} serial, and when?
+Answer: R is serial for every n > 0 and every domain A. 
+The reason is that R is reflexive: x mod n == x mod n always holds, so (x,x) is in R for every x. 
+Every x therefore has at least one y, namely itself, and y = x is in A because x is. 
+If A is empty, it is serial vacuously. Outside n > 0 there are two cases. 
+In Haskell, mod by 0 throws a divide-by-zero exception, so modRel 0 breaks on a non-empty domain. 
+For n < 0, x ≡ y (mod n) means the same as mod |n|, so it is still serial.
+
+Q2: How can you test whether R is serial, and how can you prove it?
+Answer:
+
+Test: generate a random domain and a random n > 0, build modRel n domain, and check with isSerial.
+This is prop_serialModRel. Testing only samples finitely many domains and values of n, so it can find a counterexample but cannot show there is none.
+
+Proof (universal generalization):
+Let n > 0 and let A be any domain.
+Let x be an arbitrary element of A, and choose y = x.
+Then y is in A, because y = x.
+Also x mod n = y mod n, so x ≡ y (mod n), which means (x,y) is in R.
+x was arbitrary, so every x in A has a y in A with xRy.
+Therefore R is serial on A.
+
+
+QuickCheck properties for nsub:
+
+Property A: prop_identityIsSerial. For any domain, the identity relation on it is serial.
+
+Property B: prop_emptyNotSerial. For any non-empty domain, the empty relation is not serial.
+This is a negative test, so isSerial is also checked to return False when it should.
+
+
+4. RESULTS
+
+Property B discards the cases where QuickCheck generated an empty domain.
+The proof shows prop_serialModRel holds for all inputs, and the test only agrees with it on samples.
+
+5. TEST REPORT
+
+ghci> main
+==========================================
+== Exercise 8: Sub-formulae (sub, nsub) ==
+==========================================
+-- PROPERTIES --
+1. Identity relation is serial
++++ OK, passed 100 tests.
+2. Empty relation is not serial for non-empty domain
++++ OK, passed 100 tests; 23 discarded.
+3. R is serial when x mod n is equal to y mod n for that both x and y should exist in domain A
++++ OK, passed 100 tests; 109 discarded.
+ghci> 
+
+6. CONCLUSION
+
+isSerial works as intended on the tested cases:
+- the identity relation is serial
+- the empty relation on a non-empty domain is not
+- the mod-n relation is serial.
+The tests and the proof agree. The proof covers all domains and all n > 0.
+
+
+7. LIMITATIONS
+1. QuickCheck only tests random [Int] domains, so it never covers other types.
+2. Random Int lists with random relations are almost never serial, so a property saying "random relation is serial" is not a useful test. That's why I used constructed relations (identity, mod, empty).
+3. modRel builds all pairs, so it is O(|A|²). This is fine for QuickCheck sizes but slow for large domains.
+4. mod by 0 throws an exception, so n = 0 is excluded with Positive.
+

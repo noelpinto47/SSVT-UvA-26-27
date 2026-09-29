@@ -26,6 +26,8 @@ checkOne k domain rel =
     in any(\(x,y) -> elem y domain) p
 
 
+-- isSerial: checkOne has to hold for EVERY element of the domain
+-- (all on an empty domain is True, so the empty domain is vacuously serial)
 isSerial :: Eq a => [a] -> Rel a -> Bool
 isSerial domain rel = all (\x -> checkOne x domain rel) domain
 
@@ -51,15 +53,10 @@ prop_identityIsSerial domain =
         let identityRel = [(x,x) | x <- domain]
         in isSerial domain identityRel
 
-
-prop_identityIsSerialRel :: [Int] -> Rel Int -> Bool
-prop_identityIsSerialRel domain rel = isSerial domain rel -- not true
-
 -- 2. If a domain is not empty then it is not serial if the relation is empty
 
-prop_emptyNotSerial :: Eq a => [a] -> Property
-prop_emptyNotSerial domain = 
-    not (null domain) ==> not (isSerial domain [])
+prop_emptyNotSerial :: [Int] -> Property
+prop_emptyNotSerial domain = not (null domain) ==> not (isSerial domain [])
 
 -- 3. R is serial when x mod n is equal to y mod n for that both x and y should exist in domain A. 
 -- I can test R is serial by taking x arbitrary and then 'choosing' y = x, then always y will be in domain A as x is in domain A
@@ -74,6 +71,28 @@ modRel n domain = [ (x,y) | x <- domain, y <- domain, x `mod` n == y `mod` n]
 prop_serialModRel :: [Int] -> Int -> Property
 prop_serialModRel domain n = n > 0 ==> isSerial domain (modRel n domain)
 
+-- Simons function for a fancy banner in the exercise string
+exercise :: Integer -> String -> String
+exercise x name
+  | x == 1 = banner
+  | otherwise = "\n" ++ banner
+  where
+    contents = "== Exercise " ++ show x ++ ": " ++ name ++ " =="
+    delimiter = replicate (length contents) '='
+    banner = delimiter ++ "\n" ++ contents ++ "\n" ++ delimiter
+
+--- MAIN
+main :: IO ()
+main = do
+    putStrLn (exercise 8 "Sub-formulae (sub, nsub)")
+
+    putStrLn "-- PROPERTIES --"
+    putStrLn "1. Identity relation is serial"
+    quickCheck prop_identityIsSerial
+    putStrLn "2. Empty relation is not serial for non-empty domain"
+    quickCheck prop_emptyNotSerial
+    putStrLn "3. R is serial when x mod n is equal to y mod n for that both x and y should exist in domain A"
+    quickCheck prop_serialModRel
 
 
 
