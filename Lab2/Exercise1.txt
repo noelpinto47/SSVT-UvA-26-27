@@ -1,0 +1,77 @@
+EXERCISE 1 DESIGN AND TEST REPORT
+
+Time Spent: 4h
+
+
+
+-- DESIGN CHOICES
+
+'invariant :: Ord a => Set a -> Bool' checks if alll elements of the set
+are in increasing order. It uses zipWith (<) to compare every element with
+the next element. The 'and' function then checks that all comparisons are
+True. This also means that an empty set and a set with one element meet the
+invariant.
+
+'randomSet :: IO (Set Int)' generates a random Set Int. It generates a
+random size between 0 and 20. It then generates that many random integers
+between -10 to 10 using randomRIO. The generated list is converted into a
+Set using list2set. list2set means that duplicates are removed and the
+resulting Set is ordered according to the implementation in SetOrd.hs.
+
+'testScratch :: Int -> IO ()' generates the requested number of random
+sets and checks the invariant on all of them using 'all invariant'. It
+also prints the first five generated sets so that the generated data can
+be inspected manually too.
+
+The QuickCheck version uses an Arbitrary instance for Set a. The
+arbitrary function generates an arbitrary list and then applies list2set
+to turn it into a Set. This gives QuickCheck random Set values while still
+using the Set constructor and ordering behaviour from SetOrd.hs.
+
+The shrink function converts the Set back to its underlying list, uses
+QuickCheck's normal list shrinking, and converts each smaller list back
+into a Set with list2set.
+
+
+
+-- PROPERTIES TESTED
+
+Property 1: prop_generatedSetIsValid
+Checks that every Set Int generatted by the Arbitrary instanse meets the
+invariant. It catches problems where the generator could produce Sets with
+elements not in increasing order.
+
+Property 2: prop_shrunkSetsAreValid
+Checks that all values produced by shrinking a generated Set also satisfy
+the invariant. This makes sure that the shrink function continues to
+produce valid Set values and not producing invalid internal lists.
+
+The scratch test also checks the invariant on 100 independently generated
+random sets. This provides a separate test of the randomSet generator
+before using QuickCheck.
+
+
+
+-- TEST RESULTS
+
+The scratch random test generated 100 random Set Int values and checked
+the invariant on them all.
+
+Invariant holds for all 100 sets: True
+
+The QuickCheck properties were than tested.
+
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+
+
+
+-- LIMITATIONS
+
+Duplicates are common because there are only 21 possible integer values.
+Since list2set removes duplicates, the final Set can be smaller than the
+randomly generated list.
+
+The randomSet generator only generates sets with at most 20 requested
+elements and integer values between -10 and 10. This means it does not
+test larger sets or values outside this range.
