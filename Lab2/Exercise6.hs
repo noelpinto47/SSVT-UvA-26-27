@@ -1,16 +1,11 @@
--- module Exercise6 where
+module Exercise6 where
 
 import Data.List
 import System.Random
 import Test.QuickCheck
 
---Exercise 5 imports(remove in final version)
-import Data.List (nub)
-import GHC.OldList (union)
-import Data.List (sort)
-
--- import Exercise3 (symClos)
--- import Exercise5 (trClos, Rel)
+import Exercise3 (symClos)
+import Exercise5 (trClos, Rel)
 
 main :: IO ()
 main = do
@@ -165,43 +160,3 @@ genSmallIntList = do
     y <- choose (-10, 10)
     return (x, y)
   return (sort (nub raw))
-
---Code below will be removed in final version
-
--- module Exercise3 where
-    
--- import Data.List
-
--- type Rel a = [(a,a)]
-
--- Symmetric closure of a relation
-symClos :: Ord a => Rel a -> Rel a
-symClos r = nub $ sort $ r ++ [(y,x) | (x,y) <- r]
-
-type Rel a = [(a, a)]
-infixr 5 @@
-
-(@@) :: Eq a => Rel a -> Rel a -> Rel a
-r @@ s =  nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
-
--- trClos :: Ord a => Rel a -> Rel a
-
-step :: Ord a => Rel a -> Rel a -> Rel a
-step r current = current `union` (current @@ r)
-
-
-trClos :: Ord a => Rel a -> Rel a
-trClos r = loop r r
-  where
-    loop r current = 
-        let next = current `union` (current @@ r)
-        in if sort next == sort current
-           then next
-           else loop r next
-
--- trClos r = loop r r — start the loop with current = r (the original relation is always part of its own closure)
--- let next = current union (current @@ r) — compute one round: existing pairs + newly reachable pairs
--- if sort next == sort current — if nothing changed (after sorting to ignore order), we're done
--- then next — return the fixed point
--- else loop r next — otherwise, continue with next as the new current
-
