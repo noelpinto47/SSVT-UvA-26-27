@@ -84,7 +84,7 @@ exercise x name
 --- MAIN
 main :: IO ()
 main = do
-    putStrLn (exercise 8 "Sub-formulae (sub, nsub)")
+    putStrLn (exercise 4 "Serial relations (isSerial)")
 
     putStrLn "-- PROPERTIES --"
     putStrLn "1. Identity relation is serial"
