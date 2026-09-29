@@ -1,0 +1,53 @@
+Design and Test Report - Exercise 5:
+
+Time Spent: 3hr
+
+1. APPROACH
+
+The transitive closure of R is the smallest transitive relation that contains R.
+R @@ R gives the pairs reachable in exactly two steps, R @@ R @@ R in three, and so on.
+I start with current = R and repeat one round: next = current ∪ (current @@ R)
+I stop when next has the same pairs as current (a fixed point). step does one round and loop repeats it until nothing changes.
+Two details keep the result clean: I nub the input first so duplicates don't carry through, and I sort the result at the end because the exercise asks for an ordered list of pairs.
+
+2. PROPERTIES
+
+Properties are tested in Exercise 6.
+
+4. RESULTS
+
+trClos gives the expected result for the example from the exercise, [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)].
+It also handles four other cases:
+- an input not in order
+- a cycle
+- a duplicate pair
+- the empty relation
+In all of them the result is ordered and has no duplicates.
+
+5. TEST REPORT
+
+ghci> main
+=============================================
+== Exercise 5: Transitive closure (trClos) ==
+=============================================
+-- EXAMPLES --
+"Transitive closure of [(1,2),(2,3),(3,4)] is:"
+[(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]
+"Transitive closure of [(1,2),(2,3),(3,1)] is:"
+[(1,1),(1,2),(1,3),(2,1),(2,2),(2,3),(3,1),(3,2),(3,3)]
+"Transitive closure of [(1,2),(2,1)] is:"
+[(1,1),(1,2),(2,1),(2,2)]
+"Transitive closure of [(1,2),(1,2),(2,3)] is:"
+[(1,2),(1,3),(2,3)]
+"Transitive closure of [] is:"
+[]
+ghci> 
+
+6. CONCLUSION
+
+trClos computes the transitive closure as an ordered list without duplicates, and it matches the definition in Q1.
+The termination argument in Q2 shows the loop always stops.
+
+7. LIMITATIONS
+- It is not efficient. Each round recomputes current @@ r over all pairs.
+- The fixed-point check sorts both lists in every round, which adds cost. Comparing lengths would be enough, because next always contains current.
