@@ -7,11 +7,13 @@ import Control.Monad (replicateM)
 import Data.List (minimumBy, subsequences)
 import Data.Ord (comparing)
 
+type Property a = [Integer] -> a -> Bool
+
 -- Find the minimal subset of properties that keeps the full kill set.
 --   fut   : the function under test
 --   props : the properties
 --   n     : mutants generated per mutator
-findMinimalSubset :: (a -> [Integer]) -> a -> [[Integer] -> a -> Bool] -> Int -> IO [[Integer] -> a -> Bool]
+findMinimalSubset :: (a -> [Integer]) -> a -> [Property a] -> Int -> IO [Property a]
 findMinimalSubset fut input props n = do
     let original = fut input
 
