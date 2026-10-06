@@ -1,0 +1,77 @@
+Design Report
+    Approach:
+        countSurvivors :: Integer -> [([Integer] -> Integer -> Property)] -> (Integer -> [Integer]) -> IO Integer
+        counSurvivors takes a total number of mutants to generate nGenuineMutants, a list of properties props, a function under test fut
+
+        Good to note - Fitspec mutates the function under test and generates the asked number of mutants which may include equivalent mutants. 
+        If Fitspec generates an equivalent mutant function which survives for each input it tested against - that mutant is counted as a survivor.
+
+        Because we are not generating mutants of the fut but of the output of the fut 
+        we can exclude testing with equivalent mutants using mutateOrNothing' so that we generate nGenuineMutants number of non equivalent mutants.
+        So countSurvivors returns the count of non equivalent mutants that survive.
+         That gives a better indication of the strength of our properties.
+
+         Since the countSurvivors function has to use mutate' it also needs a list of mutators which have been added to the
+         function definition.
+
+    Implementation:
+         The basic idea of the function is to pick one mutator at random from the list of mutators and one random integer as input(can be very large, positive, negative or 0).
+         Then we use mutate' to check if the mutant was killed, it survived or if it was unchanged(equivalent)
+         For each result of mutate' we classify the result True/False for each property as
+         Survived - if all properties returned True
+         Killed - Atleast one property return False
+         Unchanged (if mutateOrNothing returned [])
+         Then we recursively continue with "loop nGeneratedMutants statuses" if classification was Unchanged(not counting that mutant)
+         Otherwise we recursively continue with "loop (nGeneratedMutants + 1) (status : statuses)" (incrementing count of generated mutants, adding that result of mutate' to the final list of statuses/results)
+         This is done untill the number of non equivalent mutants generated is >= nGenuineMutants(the requested number)
+         
+
+    Effect of choice of mutations, properties on number of survivors
+        Mutators from Mutation.hs and self added mutators from Exercise1 are used:
+        mutators = [anyList, removeElements, addElements, permutate, allElementsBecomeFirstElement, reversesList]
+        With nGenuineMutants = 100
+        multiplicationTableProps = [prop_tenElements, prop_firstElementIsInput, prop_sumIsTriangleNumberTimesInput, prop_linear, prop_moduloIsZero]
+        
+        First all properties are tested against all mutants for 100 non equivalent generated mutants 
+        The properties taken together are strong enough to always catch and kill all generated mutants regardless of number of mutants generated.
+        SO selecting a subset of mutants will also not have any effect on the number of survivors. The result will always be 0 survivors because the together the properties are quite strong.
+
+        Second each of the following properties is tested seperately to get an idea of their individual strengths(100 mutants generated).
+        1)prop_tenElements ~40-60 mutants survive each time on average
+        2)prop_firstElementIsInput ~20-40 mutants survive each time on average
+        3)prop_sumIsTriangleNumberTimesInput ~20-40 mutants survive each time on average
+        4)prop_linear ~0-20 mutants survive each time on average
+        5)prop_moduloIsZero ~50-70 mutants survive each time on average
+
+        So by themselves prop_linear is the best property to cover all possible mutators at random
+        and weakest is prop_moduloIsZero. 
+
+        Example results(Test2 results vary each time you run but follow the above mentioned ranges quite strongly) 
+        
+        "Test 1: All mutants against all props, nGenuineMutants: 100"
+        "Test 1: Number of survivors: 0"
+        "Test 2: All mutants against just one prop, nGenuineMutants: 100"
+        "Test2: Number of survivors per property"
+        [47,31,31,20,68]
+
+        
+        "Test 1: All mutants against all props, nGenuineMutants: 100"
+        "Test 1: Number of survivors: 0"
+        "Test 2: All mutants against just one prop, nGenuineMutants: 100"
+        "Test2: Number of survivors per property"
+        [47,34,34,14,65]
+
+        
+        "Test 1: All mutants against all props, nGenuineMutants: 100"
+        "Test 1: Number of survivors: 0"
+        "Test 2: All mutants against just one prop, nGenuineMutants: 100"
+        "Test2: Number of survivors per property"
+        [51,30,30,20,58]
+
+    Conclusion
+        The mutation testing indicates that together the properties are very strong at testing the function under test.
+        Even with a wide variety of mutations and lots of generated mutants(which were non equivalent) the none of the mutants managed to get through all the properties
+        Rough order of individual property strength at elminating mutants - prop_linear, prop_firstElementIsInput, prop_sumIsTriangleNumberTimesInput, prop_tenElements, prop_moduloIsZero
+        Since no mutant managed to survive all properties in Test 1 there is not much point in testing mutators one by one the result will be the same - no survivors.
+
+    Indication of time spent: 3 hours
