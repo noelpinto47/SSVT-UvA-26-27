@@ -1,0 +1,138 @@
+## General definitions:
+
+### EQUIVALENT
+Definition from FitSpec paper: Two sets of properties
+for similarly named and typed functions are equivalent if the sets of
+functional-value bindings satisfying them are the same.
+
+Two property sets are equivalent if they kill the exact same mutants and let the same mutants live.
+Equivalence = survived(A) == survived(B)
+
+### SUBSET/IMPLICATION:
+
+Attention: With subset, the implication is meant in the FitSpec paper.
+
+Definition from FitSpec paper: A set of properties
+implies another set, if whenever a functional-value binding satisfies
+the first set, it also satisfies the second. In other words, the set
+of functional-value bindings satisfying the first is a subset of the
+bindings satisfying the second.
+
+Each mutant that gets killed by B, gets also killed by A. Although A maybe kill even more mutants.
+Implication A=>B = survived(A) ⊆ survived(B)
+
+### DISJOINT
+I did not find a definition for disjoint in the FitSpec paper.
+Disjoint is, when the sets are not killing common mutants.
+Disjoint = survived(A) ∩ survived(B) = ∅
+
+## Design and Test Report
+
+Generally I split the multiplicationTableProps into two sets: setA and setB. After that, I first created functions that take these two sets as input parameter as well as just one mutator.
+
+### Calculate one mutator
+The approach is the same at each
+calculateEquivalentConjectureOneMutator
+calculateImplicationConjectureOneMutator
+calculateDisjointConjectureOneMutator
+
+I first need to generate the original output list with the function under test. The function under test is at our Lab3 always the multiplicationTable. Since this function only calculates ten multiplications, I chose to set the input to 'generate arbitrary'. After that I use the mutator from the parameter to create our mutant list. It is vital that we use that same mutant list now for both setA and setB. With the help of the map function, we iterate through every property and get a list of Bools back.
+Depending now on the conjecture, the implementations are as follows:
+
+#### Equivalent implementation
+
+If the mutant survived all properties from setA and setB, then they are equivalent. This is why I calculate per set, if all the results are true. The return statement then ensures that it only returns true if in fact the mutant survived all the properties, false otherwise.
+
+#### Implication
+Since set operators and boolean operators are analogous, I decided to use the --> operator which was defined in MultiplicationTable.hs.
+The only case where the return result would be false is when the mutant survived setA, but not setB.
+
+#### Disjoint
+Per mutator run we check one mutant. If both property sets would kill this one mutant, then they would have exactly that one mutant killed in common and they would NOT be disjoint. So we return if this mutant was not killed by both setA and setB.
+
+### Iterate over every mutator
+Because we want not just test one mutator, but every mutator in the Mutation.mutators, we wrote additional function which use mapM on a list of mutators. Note that alle the calculateOneMutator return an IO Bool monade. That is why need to use mapM instead of map. Furthermore, instead of 
+
+```haskell
+results <- mapM(\mutator -> do calculateEquivalentConjectureOneMutator setA setB mutator ) mutatorsList
+```
+
+we can write the short form
+
+```haskell
+results <- mapM (calculateEquivalentConjectureOneMutator setA setB) mutatorsList
+```
+
+#### Test Report multiple Mutators
+
+
+```
+ghci> main
+
+Results result_equivalent_anyList_mutator:
+True
+
+Results result_equivalent_all_mutators:
+[("anyList",True),("removeElements",True),("addElements",True)]
+
+Results result_implication_anyList_mutator:
+True
+
+Results result_implication_all_mutators:
+[("anyList",True),("removeElements",True),("addElements",True)]
+
+Results result_disjoint_anyList_mutator:
+False
+
+Results result_disjoint_all_mutators:
+[("anyList",False),("removeElements",False),("addElements",False)]
+
+```
+
+In every iteration, one mutator is used to see if the two sets with this one mutator fulfill for example the equivalent definition. Depending on what the mutant looks like, the result can either be true or false. Just because some results are false does not mean the implementation is wrong. In the test above, it just means that for example the setA is not disjoint to setB.
+
+### Compare multiple sets
+
+Until now, at the tests we only compared 
+
+```haskell
+  let setA =  
+        [ 
+            MultiplicationTable.prop_tenElements, 
+            MultiplicationTable.prop_firstElementIsInput 
+        ]
+
+  let setB = 
+        [ 
+            MultiplicationTable.prop_sumIsTriangleNumberTimesInput, 
+            MultiplicationTable.prop_linear, 
+            MultiplicationTable.prop_moduloIsZero
+        ]
+```
+
+For further testing it would also be nice to compare arbitrary sets.
+This is done by shuffling the whole property list and then calculate an index at which the list gets split. The index must be between 1 and length shuffled - 1 because there must be one element left for setB. It was design decision to call this function four times.
+
+```
+Results from one shuffle run:
+[("anyList",True),("removeElements",False),("addElements",True)]
+[("anyList",True),("removeElements",False),("addElements",True)]
+[("anyList",False),("removeElements",True),("addElements",False)]
+
+Results from one shuffle run:
+[("anyList",True),("removeElements",False),("addElements",True)]
+[("anyList",True),("removeElements",True),("addElements",True)]
+[("anyList",False),("removeElements",True),("addElements",False)]
+
+Results from one shuffle run:
+[("anyList",True),("removeElements",True),("addElements",True)]
+[("anyList",True),("removeElements",True),("addElements",True)]
+[("anyList",False),("removeElements",False),("addElements",False)]
+
+Results from one shuffle run:
+[("anyList",True),("removeElements",False),("addElements",True)]
+[("anyList",True),("removeElements",False),("addElements",True)]
+[("anyList",False),("removeElements",True),("addElements",False)]
+```
+
+Here we can see that indeed we apply different sets every time, since the bool values are also different.

@@ -11,7 +11,8 @@ prop_tenElements o i = length o == 10
 
 -- Property 2: First number is the input
 prop_firstElementIsInput :: [Integer] -> Integer -> Bool
-prop_firstElementIsInput o i = head o == i
+prop_firstElementIsInput [] _ = False
+prop_firstElementIsInput (x:xs) i = x == i
 
 -- Property 3: The sum of the output is the input times the 10th triangle number
 prop_sumIsTriangleNumberTimesInput :: [Integer] -> Integer -> Bool

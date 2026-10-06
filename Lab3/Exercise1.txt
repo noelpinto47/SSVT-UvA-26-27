@@ -33,7 +33,7 @@
 
 
     Q) Am I reasoning about strong/week mutants correctly? Should we use multiplacatio table as examples? Or reason in general?
-    Q2)for Exercise 2 do we have to use MultiplicationTable for this?
+    Q2)for Exercise 2 do we have to use MultiplicationTable for this?n
     Q3)Weak mutations or properties means more survive
 
     Minimal Property Subset
