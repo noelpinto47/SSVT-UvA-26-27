@@ -1,4 +1,4 @@
-module Exercise3 where
+module Exercise8 where
 
 import Test.QuickCheck
 import Test.QuickCheck.Gen
@@ -8,46 +8,13 @@ import Control.Monad (replicateM, forM)
 import Data.List (minimumBy, subsequences)
 import Data.Ord (comparing)
 
--- minimal property subset is the smallest combination
--- of your defined properties that maintains the highest possible mutation score
--- (the percentage of killed mutants)
-
--- Finding this subset involves:
--- Mutant-Property Matrix:
--- Tracking which specific properties kill which specific mutants.
--- Set Covering Algorithm:
--- Mathematically finding the smallest combination of properties
--- that covers all killable mutants.
-
--- Define a simple function under test (doubles the input)
-fut :: Integer -> Integer
-fut x = x * 2
-
--- Define a property (checks if the result is even)
-prop :: Integer -> Integer -> Bool
-prop res _ = even res
-
--- Define a mutator (corrupts the output by adding 1)
-mutator :: Integer -> Gen Integer
-mutator x = return (x + 1)
-
--- Run the mutate function with an input of 10
-exampleRun :: Gen (Maybe Bool)
-exampleRun = mutate mutator prop fut 10
+-- Visualizer for minimal property subset
 
 -- exampleRun' with prop_tenElements, returns [Bool] ([False]=killed, [True]=survived, []=no change)
 exampleRun' :: Gen ([Bool])
 exampleRun' = mutate' addElements [prop_tenElements] multiplicationTable 10
 
 checkingSingleProperty = mutate addElements prop_tenElements multiplicationTable 10
-
--- replicateM n action runs an IO action n times and collects results into a list
--- so you'd get [Maybe Bool] with 100 results.
--- Maybe Bool. In Haskell, Nothing typically means the computation produced no result.
-
--- Just False = mutant killed
--- Just True = mutant survived
--- Nothing = ignore (no valid mutation happened)
 
 -- takes n as parameter instead of hardcoding 10000
 runAnalysis :: Int -> IO ()
@@ -65,11 +32,6 @@ runAnalysis n = do
   putStrLn $ "  Survived  : " ++ show (length survived)
   putStrLn $ "  No change : " ++ show (length noChange)
   putStrLn $ "  Survivor indices: " ++ show (map fst survived)
-
-  putStrLn "\n  Example surviving mutant output:"
-  exampleSurvivor <- generate (addElements (multiplicationTable 10))
-  print exampleSurvivor
-
 
 -- Run n mutant instances for a given set of properties, return killed indices
 killedBy :: [[Integer] -> Integer -> Bool] -> Int -> IO [Int]

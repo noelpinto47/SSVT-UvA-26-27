@@ -1,0 +1,59 @@
+Design and Test Report - Exercise 8:
+
+Time Spent: 2hr
+
+1. APPROACH
+
+Added a visualizer of Exercise3 to log the subset for finding minimal subset. Currently, only visualized for one mutator due to time constraint.
+
+2. OUTPUT
+
+ghci> main
+── Single Property Analysis (prop_tenElements, n=10000) ──
+  Total     : 10000
+  Killed    : 9992
+  Survived  : 0
+  No change : 8
+  Survivor indices: []
+
+── Computing Full Kill Set (all properties) ──
+  Full kill set size: 0
+
+── Checking 31 non-empty subsets ──
+  Subset 1 (size 1) → killed 9984 (99%) covers full set
+  Subset 2 (size 1) → killed 9506 (95%) covers full set
+  Subset 3 (size 2) → killed 0 (0%) covers full set
+  Subset 4 (size 1) → killed 9944 (99%) covers full set
+  Subset 5 (size 2) → killed 0 (0%) covers full set
+  Subset 6 (size 2) → killed 0 (0%) covers full set
+  Subset 7 (size 3) → killed 0 (0%) covers full set
+  Subset 8 (size 1) → killed 9989 (99%) covers full set
+  Subset 9 (size 2) → killed 0 (0%) covers full set
+  Subset 10 (size 2) → killed 0 (0%) covers full set
+  Subset 11 (size 3) → killed 0 (0%) covers full set
+  Subset 12 (size 2) → killed 0 (0%) covers full set
+  Subset 13 (size 3) → killed 0 (0%) covers full set
+  Subset 14 (size 3) → killed 0 (0%) covers full set
+  Subset 15 (size 4) → killed 0 (0%) covers full set
+  Subset 16 (size 1) → killed 9991 (99%) covers full set
+  Subset 17 (size 2) → killed 0 (0%) covers full set
+  Subset 18 (size 2) → killed 0 (0%) covers full set
+  Subset 19 (size 3) → killed 0 (0%) covers full set
+  Subset 20 (size 2) → killed 0 (0%) covers full set
+  Subset 21 (size 3) → killed 0 (0%) covers full set
+  Subset 22 (size 3) → killed 0 (0%) covers full set
+  Subset 23 (size 4) → killed 0 (0%) covers full set
+  Subset 24 (size 2) → killed 0 (0%) covers full set
+  Subset 25 (size 3) → killed 0 (0%) covers full set
+  Subset 26 (size 3) → killed 0 (0%) covers full set
+  Subset 27 (size 4) → killed 0 (0%) covers full set
+  Subset 28 (size 3) → killed 0 (0%) covers full set
+  Subset 29 (size 4) → killed 0 (0%) covers full set
+  Subset 30 (size 4) → killed 0 (0%) covers full set
+  Subset 31 (size 5) → killed 0 (0%) covers full set
+
+  Subsets covering full kill set: 31
+
+═══ Result ═══
+  Minimal subset size: 1
+ghci>
