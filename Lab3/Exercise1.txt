@@ -44,4 +44,9 @@
     
     2.4) Another mutator might keep the list size the same and just replace all elements by one random element.
 
+3) Example output of generate, firstElement, reversed mutators
+    [5,3,4,2,1]
+    [1,1,1,1,1]
+    [5,4,3,2,1]
+
 Time Spent - ~2 hours
