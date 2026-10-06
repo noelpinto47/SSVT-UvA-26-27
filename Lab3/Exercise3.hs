@@ -1,7 +1,7 @@
 module Exercise3 where
 
 import Test.QuickCheck (generate)
-import Mutation (anyList, removeElements, addElements, mutators)
+import Mutation (mutators)
 import MultiplicationTable (multiplicationTable, multiplicationTableProps)
 import Control.Monad (replicateM)
 import Data.List (minimumBy, subsequences)
@@ -11,11 +11,14 @@ import Data.Ord (comparing)
 --   fut   : the function under test
 --   props : the candidate properties
 --   n     : mutants generated per mutator
+findMinimalSubset :: (a -> [Integer]) -> a -> [[Integer] -> a -> Bool] -> Int -> IO [[Integer] -> a -> Bool]
 findMinimalSubset fut input props n = do
     let original = fut input
 
     -- One shared pool of mutants, so every subset is judged on the same mutants.
-    pool <- concat <$> mapM (\mut -> replicateM n (generate (mut original))) mutators
+    pool <- concat <$> mapM (\mutator -> replicateM n (generate (mutator original))) mutators
+
+    -- Outputs identical to the original are not mutations, so they are dropped.
     let muts = filter (/= original) pool
 
         -- A property kills a mutant if it returns False on it

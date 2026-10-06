@@ -1,0 +1,45 @@
+Design and Test Report - Exercise 3:
+
+Time Spent: 5hr
+
+1. APPROACH
+
+The function findMinimalSubset takes a function under test (fut), a list of properties, and a sample size n. It finds the smallest subset of properties that kills every mutant the full property set kills.
+
+The steps are:
+1. Generate mutants. Apply each mutator (anyList, removeElements, addElements) to the output of fut on a fixed input, n times per mutator. 2. Outputs identical to the original are dropped because they are not real mutations.
+3. Build the mutant-property matrix. A property kills a mutant when it returns False on it.
+4. Compute the benchmark. The full kill set is the mutants killed by at least one property in the full set.
+5. Set covering. A subset is valid if it kills every mutant in the full kill set. Enumerate all non-empty subsets with subsequences and keep the valid ones.
+6. Select. Return the valid subset with the fewest properties.
+
+
+2. RESULTS
+
+ghci> main
+Mutants in pool      : 29988
+Full kill set size   : 29988
+Subsets covering it  : 20
+
+═══ Result ═══
+  Minimal subset size: 2
+ghci>
+
+3. CONCLUSION
+
+I implemented findMinimalSubset to take a function under test, a list of properties, and a sample size n. It generates one shared pool of mutants from all three mutators, then searches the property subsets for the smallest one that still kills every mutant the full set kills. Judging every subset on the same mutants fixed the earlier index-based comparison which I tried initially.
+
+
+4. LIMITATIONS
+
+a. Random sampling. Each mutant is a random sample, so the kill set can change between runs. A property might be dropped in one run and kept in another if its kills are rare. Increasing n reduces this but does not remove it.
+
+b. Non-detectable mutants. A mutant that no property kills is excluded from the benchmark, since no subset can kill it. This means the minimal subset maximises the score among detectable mutants only. The mutation score of the full set is therefore an upper bound, and a low score may come from weak properties rather than from the subset.
+
+c. Redundancy. Properties that kill the same mutants make the subset search pick one of them arbitrarily. minimumBy returns the first minimum, so the result depends on the order of multiplicationTableProps. There may be several minimal subsets of equal size.
+
+d. Selection criterion. The minimum is by number of properties, not by cost. A property that is cheap to run and one that is expensive count the same.
+
+e. Single input. All mutants are generated for one input (10). Properties may behave differently on other inputs, so the minimal subset is only validated for that input.
+
+f. Mutator coverage. The subset is only as good as the mutators. A bug type that none of the three mutators produces cannot be detected by any property, so it does not affect the result.
