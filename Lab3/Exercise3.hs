@@ -9,7 +9,7 @@ import Data.Ord (comparing)
 
 -- Find the minimal subset of properties that keeps the full kill set.
 --   fut   : the function under test
---   props : the candidate properties
+--   props : the properties
 --   n     : mutants generated per mutator
 findMinimalSubset :: (a -> [Integer]) -> a -> [[Integer] -> a -> Bool] -> Int -> IO [[Integer] -> a -> Bool]
 findMinimalSubset fut input props n = do
