@@ -3,7 +3,7 @@ module Exercise2 where
 import Data.List
 import Mutation (mutate', anyList, removeElements, addElements)
 import Exercise1 (permutate, allElementsBecomeFirstElement, reversesList)
-import Multiplication (multiplicationTableProps, multiplicationTable)
+import MultiplicationTable (multiplicationTableProps, multiplicationTable)
 import Test.QuickCheck (Gen, shuffle, generate)
 import System.Random (randomIO, randomRIO)
 
@@ -12,13 +12,13 @@ main = do
   print ("Test 1: All mutants against all props, nGenuineMutants: 100" )
   countTest1 <- countSurvivors nGenuineMutants mutators multiplicationTableProps multiplicationTable
   print ("Test 1: Number of survivors: " ++ show countTest1)
-  
+
   print ("Test 2: All mutants against just one prop, nGenuineMutants: 100" )
   countsTest2 <- mapM (\prop -> countSurvivors nGenuineMutants mutators [prop] multiplicationTable) multiplicationTableProps
   print "Test2: Number of survivors per property"
   print countsTest2
 
-  
+
 countSurvivors :: Integer -> [([Integer] -> Gen [Integer])] -> [([Integer] -> Integer -> Bool)] -> (Integer -> [Integer]) -> IO Integer
 countSurvivors nGenuineMutants mutators props fut = do
   statuses <- loop 0 []
@@ -41,13 +41,13 @@ countSurvivors nGenuineMutants mutators props fut = do
           case classification of
             Unchanged -> loop nGeneratedMutants statuses
             status -> loop (nGeneratedMutants + 1) (status : statuses)
-      
+
 randomElementWithIndex :: [a] -> IO (Int, a)
 randomElementWithIndex [] = error "Cannot pick from an empty list"
 randomElementWithIndex xs = do
   idx <- randomRIO (0, length xs - 1)
   return (idx, xs !! idx)
-  
+
 data MutationStatus
   = Unchanged
   | Survived
