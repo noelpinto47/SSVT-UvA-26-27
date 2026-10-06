@@ -22,13 +22,13 @@ findMinimalSubset fut input props n = do
     let muts = filter (/= original) pool
 
         -- A property kills a mutant if it returns False on it
-        kills prop out = not (prop out input)
+        kills prop output = not (prop output input)
 
         -- Benchmark: mutants killed by at least one property in the full set
-        fullKill = filter (\m -> any (`kills` m) props) muts
+        fullKill = filter (\m -> any (\p -> kills p m) props) muts
 
         -- A subset covers the benchmark if it kills every mutant in fullKill
-        covers subset = all (\m -> any (`kills` m) subset) fullKill
+        covers subset = all (\m -> any (\p -> kills p m) subset) fullKill
 
         -- Valid subsets, from which we pick the smallest
         candidates = [ subset | subset <- subsequences props, not (null subset), covers subset ]
