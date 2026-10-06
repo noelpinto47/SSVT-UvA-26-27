@@ -6,41 +6,42 @@
         2)Zero or more elements appended to the end of the list
 
         So the list could even be unchanged resulting in a unchanged mutant
-        This mutator however does not mutate the contents of list xs in any way ie the elements in the center are always the same
+        Outputs not covered:
+            -This mutator however does not mutate the contents of list xs in any way ie the elements in the center are always the same
         This is the strongest mutation because it can edit the list from both sides by adding add random integers
 
     1.2)removeElements :: [Integer] -> Gen [Integer]
-        This uses take to take the first x elements from the list. 
+        This uses "take" to take the first x elements from the list. 
         It cannot remove the first element while still keeping the later elements
         It cannot remove a middle element(or set of elements from the middle of the list)
-        Note it CAN return an empty list if x is negative or 0 in take x xs
+        Note it CAN return an empty list if x is negative or 0 in "take x xs"
         It can only remove elements and that too in a specific order so that makes it weaker than addElements
         Also if xs itself is empty then it becomes choose (1, -1) which will throw a run time error
 
     1.3)anyList :: [Integer] -> Gen [Integer]
         This completely ignores the input and generates random lists with regards to size and contents
         It is concievably very easy for any decent property to reject it easily without the mutant being actually able to 
-        really test something strongly about the property ie it is a weak mutation and the weakest of the three. Ex. it will likely not 
-        produce a list of exactly 10 elements so it will easily be killed by prop_tenElements.
+        really test something strongly about the property ie it is a weak mutation and the weakest of the three.
 
+    Note: Without being given a concrete function under test and 
+    set of properties it is not possible to say definitively which mutator will definitely be stronger or weaker.
+    The answer could change based on the function under test.
+    For the MultiplicationTable example since all of the above will likely change the length of the 
+    list they will most likely always be killed by prop_tenElements without even really challenging the other properties.
 
 
 2) Possible new mutators
+
     2.1) permutate shuffles the list without changing the size of the list.
+         This mutator would for example pass prop_tenElements, prop_sumIsTriangleNumberTimesInput, prop_moduloIsZero 
+         and only maybe fail for prop_firstElementIsInput and very likely fail for prop_linear making it a decent mutator.
+    
     2.2) allElementsBecomeFirstElement - first element remains same and every element after that becomes the first element without changing size of list
-    2.3) reversesList reverses the list 
+         This mutator would for example pass prop_tenElements, prop_firstElementIsInput, prop_moduloIsZero and fail for prop_sumIsTriangleNumberTimesInput, prop_linear
+    
+    2.3) reversesList reverses the list
+         This would for example pass on  prop_tenElements, prop_sumIsTriangleNumberTimesInput, prop_linear, prop_moduloIsZero and only fail for prop_firstElementIsInput
+    
     2.4) Another mutator might keep the list size the same and just replace all elements by one random element.
 
-
-    Q) Am I reasoning about strong/week mutants correctly? Should we use multiplacatio table as examples? Or reason in general?
-    Q2)for Exercise 2 do we have to use MultiplicationTable for this?n
-    Q3)Weak mutations or properties means more survive
-
-    Minimal Property Subset
-    Take each subset of properties and take the smallest subset with has the highest mutation score
-    Valid mutants killed /Total valid mutants * 100 
-
-    How to calculate valid mutants?
-    How to calculate which properties kill a subset of mutants of other properties?
-
-
+Time Spent - ~2 hours
