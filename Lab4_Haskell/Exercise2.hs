@@ -78,6 +78,11 @@ tauTransition ss = do
     end <- elements ss
     return (start, tau, end)
 
+deltaTransition :: [State] -> Gen LabeledTransition
+deltaTransition ss = do
+    start <- elements ss
+    return (start, delta, start)
+
 numTransitions :: Gen Int
 numTransitions = choose (1, 10)
 
@@ -89,6 +94,7 @@ genTransitions ss inputLabels outputLabels = do
             [ inputTransition ss inputLabels
             , outputTransition ss outputLabels
             , tauTransition ss
+            , deltaTransition ss
             ])
 
 genValidIOLTS :: Gen IOLTS

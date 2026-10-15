@@ -9,7 +9,7 @@ cartesianProduct :: [State] -> [Label] -> [LabeledTransition]
 cartesianProduct states labels =
     [ (from, label, to)
     | from  <- states
-    , label <- labels ++ [tau]
+    , label <- labels ++ [tau] ++ [delta]
     , to    <- states
     ]
 
@@ -44,25 +44,23 @@ prop_transitionsSubsetOfCartesianProduct (states, input_labels, output_labels, t
     where
         allowedTransitions = cartesianProduct states (input_labels ++ output_labels)
 
--- All predefined IOLTS examples from LTS.hs
--- (the plain LTS examples like tretmanP..V have no ?/! labels and are 4-tuples,
---  so they cannot be tested with the IOLTS properties)
-examples :: [IOLTS]
+examples :: [(String, IOLTS)]
 examples =
-    [ counterImpl, counterModel
-    , coffeeImpl1, coffeeModel1
-    , coffeeImpl2, coffeeModel2
-    , coffeeImpl3, coffeeModel3
-    , coffeeImpl4, coffeeModel4
-    , coffeeImpl5, coffeeModel5
-    , coffeeImpl6, coffeeModel6
-    , tretmanK1, tretmanK2, tretmanK3
-    , tretmanI1, tretmanI2, tretmanI3, tretmanI4
-    , tretmanS1, tretmanS2, tretmanS3, tretmanS4
-    , tretmanR1, tretmanR2
+    [ ("counterImpl", counterImpl), ("counterModel", counterModel)
+    , ("coffeeImpl1", coffeeImpl1), ("coffeeModel1", coffeeModel1)
+    , ("coffeeImpl2", coffeeImpl2), ("coffeeModel2", coffeeModel2)
+    , ("coffeeImpl3", coffeeImpl3), ("coffeeModel3", coffeeModel3)
+    , ("coffeeImpl4", coffeeImpl4), ("coffeeModel4", coffeeModel4)
+    , ("coffeeImpl5", coffeeImpl5), ("coffeeModel5", coffeeModel5)
+    , ("coffeeImpl6", coffeeImpl6), ("coffeeModel6", coffeeModel6)
+    , ("tretmanK1", tretmanK1), ("tretmanK2", tretmanK2), ("tretmanK3", tretmanK3)
+    , ("tretmanI1", tretmanI1), ("tretmanI2", tretmanI2), ("tretmanI3", tretmanI3), ("tretmanI4", tretmanI4)
+    , ("tretmanS1", tretmanS1), ("tretmanS2", tretmanS2), ("tretmanS3", tretmanS3), ("tretmanS4", tretmanS4)
+    , ("tretmanR1", tretmanR1), ("tretmanR2", tretmanR2)
     ]
 
 main :: IO ()
-main = do
-    let ltsImplementations = examples
-    print (all validateLTS ltsImplementations) -- if all LTS implementations confirm the validateLTS function, it returns true
+main = mapM_ putStrLn
+    [ n ++ ": " ++ show (validateLTS lts)
+    | (n, lts) <- examples
+    ]
