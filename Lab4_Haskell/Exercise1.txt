@@ -1,0 +1,73 @@
+Time spent: ~1 day
+This includes reading (and **understanding**) the paper of Tretman and LTS systems as a whole
+# List of factors that result in invalid IOLTS's.
+
+- Definition 6.1
+	- Invalid Factor: The IOLTS does not have 5 values such as (Q,LI ,LU ,T,q0) ∈ LTS(LI ,LU)
+
+- Definition 1.1
+	- Invalid Factor: Q is not countable and empty
+
+- Definition 1.3: T ⊆ Q × (L ∪{τ}) × Q, with τ ∉ L, is the transition relation
+	- Invalid factors
+		- T is not a subset of the cartesian product
+		- τ is in the set of input labels
+
+- Definition 1.4: q0 ∈ Q is the initial state
+	- Invalid factor: q0 ∉ Q
+	- Initial state is missing from the declared state set
+
+- Definition 6.2: LI ∩ LU = ∅
+	- Invalid Factor: LI ∩ LU ≠ ∅
+	- If the input label set LI and output actions in an output label set LU are not disjoint, then this is considered invalid.
+
+I asked at the oral session: We do not need to take into consideration the following definition about input enabled systems:
+
+- Definition 7: ∀q ∈ derived from q0, ∀a ∈ LI : p ⇒ a
+	- Explanation: If an input label is declared in LI, then the system must be able to accept that input in every state reachable from the initial state.
+	- Invalid factor: p ⇏ a
+	- A declared input is not enabled in a reachable state
+# Design report
+
+For the validateLTS I used the guard mechanism. For this, I check every property of the LTS defined above. Furthermore, I made a helper function cartesianProduct that calculates all the allowed transitions and included tau in there, as in Definition 1.3.
+
+The properties itself are standalone functions, derived from the definitions in the same order as it is checked at the validateLTS function.
+
+Moreover, I also asked this in the oral session: Even though in the Tretmans paper the definition is T ⊆ Q × (L ∪{τ}) × Q, I also included the quiescent ("delta") in the labels to calculate all possible valid transitions.
+
+# Test report
+
+Again, after confirmation at the oral discussion, we used the examples from the `LTS.hs` file, to test our `validateLTS` function.
+As the test report shows, all the implementations as well as the models are equally valid.
+A quick remark: This only checks if the LTS systems itself are valid systems, not IOCO conformance. This is also why all the examples are true.
+
+```
+ghci> main
+counterImpl: True
+counterModel: True
+coffeeImpl1: True
+coffeeModel1: True
+coffeeImpl2: True
+coffeeModel2: True
+coffeeImpl3: True
+coffeeModel3: True
+coffeeImpl4: True
+coffeeModel4: True
+coffeeImpl5: True
+coffeeModel5: True
+coffeeImpl6: True
+coffeeModel6: True
+tretmanK1: True
+tretmanK2: True
+tretmanK3: True
+tretmanI1: True
+tretmanI2: True
+tretmanI3: True
+tretmanI4: True
+tretmanS1: True
+tretmanS2: True
+tretmanS3: True
+tretmanS4: True
+tretmanR1: True
+tretmanR2: True
+```

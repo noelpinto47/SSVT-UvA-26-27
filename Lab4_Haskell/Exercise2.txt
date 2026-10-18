@@ -1,0 +1,73 @@
+Time spent: ~4-5 hours
+# Design report
+
+The main generator is the `genValidIOLTS`. For a IOLTS, we need:
+- The states
+- The initial state
+- Input labels
+- Output labels
+- and transitions.
+
+## States
+The generator first gets the states from the `genStates` function. We keep the maximum number of states at a limit of 5. I got the confirmation at the oral session that this is okay. The limit is enough for our demonstration purposes.
+After that we take the list of [1,2,3,4,5,6,7,8,9,10], shuffle it and take the first elements of it as our states.
+The initial state is just one element of the entire states array, extracted with the `elements` function.
+## Labels
+For the labels, we decided to receive them from a own input- and output- labelpool. These label pools are hard coded and contain values in the context of a coffee vendor machine.
+The principle of generation of the labels is the same as with the states.
+
+## Transitions
+The generator of the transitions needs the states, input and output labels as parameter. Again, we have a own generator for the amount of transitions itself, with a max value of 10.
+After that, we use a combination of `nub` and `vectorOf` to generate the list of distinct transitions.
+For each element of the list, the program chooses either
+- input transition
+- output transition
+- tau Transition (internal state change)
+- delta transition (quiescent state)
+
+For the input and output transition, we extract one element of the states list and labels list from the parameters.
+For the tau transition, we set the label to tau.
+For the delta transition, we set the end = start.
+
+# Invalid IOLTS
+
+We included five invalid generators to break each of our Exercise1 properties. Each generator hereby implements exactly the invalid factor from the IOLTS.
+For example, for the property `prop_tauNotInInputLabels` which checks if tau is in the input labels, we generate a new input label set and include tau in it.
+# Test report
+
+First, we see that our valid generator passes all five properties and the `validateLTS` function.
+
+After that, we see that the IOLTS `([],["?selectHotChocolate","?selectEspresso","?selectTea"],["!outOfStock"],[],1)` indeed has no states and also no initial state and therefore fails the property test.
+
+The second one has tau in the input labels: `["?selectWater","?selectDecaf","?insertCard","tau"]`
+
+At the third one, the state 11 can never be part of the states, as the max value of the states is 10.
+
+The fourth one has an input in the output labels: `["?selectTea","!returnChange","!dispenseWater","!paymentRejected"]`.
+
+The last one includes a transaction with the false label "falseLabel": `[(5,"falseLabel",5),(5,"?requestRefund",1)]`
+
+```
+ghci> Exercise2.main
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+
++++ OK, failed as expected. Falsified (after 1 test):  
+([],["?selectHotChocolate","?selectEspresso","?selectTea"],["!outOfStock"],[],1)
+
++++ OK, failed as expected. Falsified (after 1 test):  
+([7,6],["?selectWater","?selectDecaf","?insertCard","tau"],["!dispenseTea","!dispenseCoffee","!refundIssued","!dispenseEspresso","!paymentRejected"],[(6,"!dispenseEspresso",6),(6,"?selectDecaf",6),(6,"delta",6),(7,"!dispenseEspresso",6),(7,"!dispenseEspresso",7),(6,"tau",6),(7,"?selectDecaf",7),(6,"?insertCard",7)],6)
+
++++ OK, failed as expected. Falsified (after 1 test):  
+([6,8,5],["?selectTea","?selectHotChocolate"],["!paymentRejected","!dispenseTea","!dispenseWater","!dispenseCoffee"],[(6,"tau",5),(6,"?selectHotChocolate",8),(5,"?selectTea",5),(6,"tau",6),(5,"?selectTea",6),(6,"!dispenseCoffee",5)],11)
+
++++ OK, failed as expected. Falsified (after 1 test):  
+([2,3,9,8],["?selectTea","?selectEspresso","?insertCard","?selectDecaf","?selectCoffee"],["?selectTea","!returnChange","!dispenseWater","!paymentRejected"],[(3,"!dispenseWater",8),(3,"?selectCoffee",9),(8,"!paymentRejected",8),(2,"tau",8),(3,"?insertCard",8),(8,"delta",8)],3)
+
++++ OK, failed as expected. Falsified (after 1 test):  
+([1,5],["?insertCard","?selectWater","?requestRefund","?cancel"],["!paymentRejected","!dispenseWater"],[(5,"falseLabel",5),(5,"?requestRefund",1)],5)
+```

@@ -171,8 +171,13 @@ main = do
 
     -- Invalid generators
     -- expectFailure is used to demonstrate the failures and nevertheless count it as OK.
+    putStrLn ""
     quickCheck (expectFailure (forAll genEmptyStatesIOLTS Exercise1.prop_statesNotEmpty))
+    putStrLn ""
     quickCheck (expectFailure (forAll genTauInInputLabelsIOLTS Exercise1.prop_tauNotInInputLabels))
+    putStrLn ""
     quickCheck (expectFailure (forAll genInitialStateNotInStatesIOLTS Exercise1.prop_initialStateElementOf))
+    putStrLn ""
     quickCheck (expectFailure (forAll genOverlappingLabelsIOLTS Exercise1.prop_intersectionIsEmpty))
+    putStrLn ""
     quickCheck (expectFailure (forAll genInvalidTransitionIOLTS Exercise1.prop_transitionsSubsetOfCartesianProduct))
