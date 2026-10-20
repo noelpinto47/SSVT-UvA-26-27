@@ -1,0 +1,56 @@
+Design and Test Report — Exercise 4
+Time spent: 4 hr
+
+1. Approach
+after :: IOLTS -> Trace -> [State] follows the Tretmans definition directly by recursing on the trace:
+1. Empty trace: return the ε-closure of the initial state q0 (i.e. q0 plus everything reachable from it by τ-transitions only).
+2. Trace l:ls  first follow the observable label l (stepWith), then ε-close (epsClose), then recurse on ls.
+3. δ (quiescence) is not an ordinary label. It does not follow a transition; it filters the current state set down to the quiescent states.
+
+Three helpers:
+1. stepWith: follow one observable label across a set of states.
+2. epsClose: τ-closure, computed as a fixpoint (makeSet keeps it a set; loop until it stops growing).
+3. isQuiescent: true if a state has no outgoing τ and no outgoing output.
+
+straces reuses after to generate all suspension traces up to a given length over ins ++ outs ++ [delta], keeping only traces whose after-set is non-empty (dead traces are dropped).
+
+2. Properties
+a. prop_empty - Confirms the empty-trace base case of after returns exactly the ε-closure of q0.
+
+b. prop_delta - Confirms δ only shrinks the after-set, i.e. observing quiescence never introduces new states, as required when δ is a filter rather than a transition.
+
+c. prop_delta_quiescent - Confirms every state surviving a δ step really is quiescent (no outgoing output, no outgoing τ).
+
+3. Results
+a. prop_empty: passes, 1 test (it is a Bool).
+
+b. prop_delta: passes, 100 tests.
+
+c. prop_delta_quiescent: passes, 100 tests.
+
+4. Test report
+ghci> main
+== Regular traces ==
+True
+True
+True
+True
+True
+True
+True
+True
+== Suspension traces (δ) ==
+True
+True
+True
+True
+True
+True
+== QuickCheck ==
++++ OK, passed 1 test.
++++ OK, passed 100 tests.
++++ OK, passed 100 tests.
+
+
+5. Conclusion
+The implementation tracks the Tretmans definition: recursion over observable labels, a τ-fixpoint for internal steps, and an explicit quiescence filter for δ. All unit tests (three IOLTS instances, regular and suspension traces) pass, and three QuickCheck checks properties pass.
