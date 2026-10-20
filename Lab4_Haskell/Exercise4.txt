@@ -1,11 +1,11 @@
-Design and Test Report — Exercise 4
+Design and Test Report - Exercise 4
 Time spent: 4 hr
 
 1. Approach
-after :: IOLTS -> Trace -> [State] follows the Tretmans definition directly by recursing on the trace:
+after :: IOLTS -> Trace -> [State] follows the Tretmans definition by recursing on the trace:
 1. Empty trace: return the ε-closure of the initial state q0 (i.e. q0 plus everything reachable from it by τ-transitions only).
-2. Trace l:ls  first follow the observable label l (stepWith), then ε-close (epsClose), then recurse on ls.
-3. δ (quiescence) is not an ordinary label. It does not follow a transition; it filters the current state set down to the quiescent states.
+2. Trace l:ls  - first follow the observable label l (stepWith), then ε-close (epsClose), then recurse on ls.
+3. δ (quiescence) to filter the current state set down to the quiescent states.
 
 Three helpers:
 1. stepWith: follow one observable label across a set of states.
