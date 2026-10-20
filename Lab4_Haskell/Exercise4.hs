@@ -31,16 +31,16 @@ after iolts@(_, _, _, lt, q0) trace = go (epsClose lt [q0]) trace
       | l == delta = go (filter (isQuiescent iolts) qs) ls
       | otherwise  = go (epsClose lt (stepWith lt qs l)) ls
 
--- straces: all suspension traces up to length n (only non-dead ones)
+-- All sequences of a given length
 sequences :: [a] -> Int -> [[a]]
 sequences _  0 = [[]]
 sequences xs n = [ x : rest | x <- xs, rest <- sequences xs (n - 1) ]
 
-straces :: IOLTS -> Int -> [Trace]
-straces iolts@(_, ins, outs, _, _) n =
+-- straces: ALL suspension traces (infinite, lazy), dead traces dropped.
+straces :: IOLTS -> [Trace]
+straces iolts@(_, ins, outs, _, _) =
   [ sigma
-  | len   <- [0 .. n]
-  , sigma <- sequences (nub (ins ++ outs ++ [delta])) len
+  | sigma <- concatMap (sequences (nub (ins ++ outs ++ [delta]))) [0 ..]
   , not (null (after iolts sigma)) ]
 
 -- Unit tests
