@@ -1,0 +1,101 @@
+EXERCISE 5 DESIGN AND TEST REPORT
+
+Time Spent: 3 hours
+
+
+-- DESIGN CHOICES
+
+The door is specified with eight transitions in 'doorTransitions'. Every
+input is followed by exactly one output, so state 0 is open, state 2 is
+closed and unlocked and state 5 is closed and locked. The same list is is
+used to build 'doorModel :: IOLTS' and 'doorLTS :: LTS'. doorLTS keeps the
+'?' and '!' on its labels, which is how inputs and outputs can still be
+told apart even though testLTSAgainstSUT takes an LTS. 'type Door' is used
+for a door implementation, which takes its current state and an input and
+returns the new state and an output.
+
+'testLTSAgainstSUT :: LTS -> (State -> Label -> (State, Label)) -> Bool'
+is basically the ioco test from the lecture. The door is only sent inputs
+that the model allows, and every output it gives back has to be in out(model
+after trace). Inputs that the model does not specify are not tested, because
+ioco lets the implementation do anything there.
+
+'checkSUT' does the proper work. It explores pairs of model states and
+door states, starting from the initial model state and door state 0. For
+every input the model allows, it calls the door with the previously
+returned state and checks the output. 'afterLabel' and 'enabled' are used
+to find the model states after a label and the inputs or outputs allowed
+in those states. A pair that has already been checked is skipped. The
+door only has a few internal states, so this always stops and every
+reachable pair is checked once. A fixed depth was not used because it
+could miss bugs that only show up after a few cycles, like in doorImpl6.
+
+
+The doors call 'error' when they get an invalid command. 'safeStep'
+catches this so that a crash is reported as a failure with the trace that
+caused it.
+testLTSAgainstSUT returns True if the door passes and throws an error with
+a short message if it fails. The message shows the trace, what the door
+did wrong and which output the model expects, so it is clear how to
+reproduce the bug and how to fix it.
+
+
+
+-- TESTS
+
+
+
+doorImpl1: PASS
+doorImpl2: after ["?close"] the door responded "opened"
+doorImpl3: after [..., "?unlock", "!unlocked", "?lock"] the door crashed
+doorImpl4: after ["?close", "!closed", "?lock"] the door crashed
+doorImpl5: after ["?close", "!closed", "?open"] the door responded "open"
+doorImpl6: after three open/close cycles "?open" crashed with
+           "Door is stuck!"
+doorImpl7: after [..., "?lock", "!locked", "?unlock"] the door crashed
+           with "Incorrect keycode!"
+doorImpl8: after a lock/unlock and two open/close cycles "?open" crashed
+
+
+doorImpl1 passes and all seven faulty doors fail. Pairs are explored
+breadth first, so each failure is found with the shortest trace that
+reaches it. The bugs are:
+
+doorImpl2: close and open give each other's outputs. close should return
+"closed" and open should return "opened".
+
+doorImpl3: unlock returns "unlocked" but stays in the locked state 2, so
+the next command crashes. unlock should go to state 1.
+
+doorImpl4: lock and unlock are swapped, so locking a closed door crashes.
+1 "lock" should give (2, "locked") and 2 "unlock" should give
+(1, "unlocked").
+
+doorImpl5: open returns "open" instead of "opened".
+
+doorImpl6: The door gets stuck the third time it is opened. Opening and
+closing should go back to state 0 instead of counting up to state 6.
+
+doorImpl7: After unlocking, opening, closing and locking again, unlock
+crashes with "Incorrect keycode!". 6 "unlock" should return "unlocked".
+
+doorImpl8: After a lock/unlock and two open/close cycles the door is in
+state 7, where open crashes. 7 "open" should return "opened".
+
+
+
+
+-- LIMITATIONS
+
+Only behaviour in the model is tested. doorImpl8 also has a extra
+7 "close" transition, but the model doesn't allow close on a closed door,
+so ioco never tests it.
+
+The Fix in the message names the command that failed, which is not always
+the one that caused the bug. doorImpl3 crashes on lock, but the real bug
+is that unlock leaves the door locked. The trace shows the steps before
+the crash, so the cause can stil be found from there.
+
+The exploration only stops because the door has a finite number of
+states. A door that returns a new state on every call would need a depth
+limit.
